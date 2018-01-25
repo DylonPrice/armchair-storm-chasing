@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "256158712833",
+    "project_id": "armchair-storm-chasing"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256158712833:android:a6603f2f0f08acbe",
+        "android_client_info": {
+          "package_name": "edu.bsu.cs495.armchairstormchasing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256158712833-9abja58h06pl3fgagqvacj80tq1k13hs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.bsu.cs495.armchairstormchasing",
+            "certificate_hash": "bfb681326fef83bb71115a8b58206a035435928f"
+          }
+        },
+        {
+          "client_id": "256158712833-8fu0bljg3rblg8n3683acn2asbb41p8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmvW5kGRxYqOo9v7mjKZY_Gz_y2jK8NE8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
