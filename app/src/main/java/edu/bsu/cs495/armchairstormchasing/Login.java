@@ -41,12 +41,12 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        profileSection = (LinearLayout)findViewById(R.id.prof_section);
-        signOutBtn = (Button)findViewById(R.id.btn_logout);
-        signInBtn = (SignInButton)findViewById(R.id.btn_login);
-        name = (TextView)findViewById(R.id.name);
-        email = (TextView)findViewById(R.id.email);
-        profilePicture = (ImageView)findViewById(R.id.profile_pic);
+        profileSection = findViewById(R.id.prof_section);
+        signOutBtn = findViewById(R.id.btn_logout);
+        signInBtn = findViewById(R.id.btn_login);
+        name = findViewById(R.id.name);
+        email = findViewById(R.id.email);
+        profilePicture = findViewById(R.id.profile_pic);
         signInBtn.setOnClickListener(this);
         signOutBtn.setOnClickListener(this);
         profileSection.setVisibility(View.GONE);
@@ -71,9 +71,15 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
 
     }
 
+    public void toMapActivity(){
+        Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
+    }
+
     private void signIn(){
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleAPiClient);
         startActivityForResult(intent, req_code);
+        toMapActivity();
     }
 
     private void signOut(){
@@ -94,7 +100,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             String imageUrl = account.getPhotoUrl().toString();
             name.setText(userName);
             email.setText(userEmail);
-
             if (account.getPhotoUrl() != null){
                 new LoadProfileImage(profilePicture).execute(imageUrl);
             }
@@ -128,7 +133,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
 }
 
 class LoadProfileImage extends AsyncTask<String, Void, Bitmap> {
-    ImageView bitmapImage;
+    private ImageView bitmapImage;
 
     public LoadProfileImage(ImageView bmImage){
         this.bitmapImage = bmImage;
