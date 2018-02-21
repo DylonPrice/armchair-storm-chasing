@@ -4,12 +4,15 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
+import android.widget.TextView;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -26,9 +29,32 @@ public class MapActivity extends AppCompatActivity {
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
-        mapController.setZoom(9);
-        GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
+        mapController.setZoom(5);
+        GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
         mapController.setCenter(startPoint);
+        final Marker startMarker = new Marker(map);
+        startMarker.setInfoWindow(null);
+        map.getOverlays().add(startMarker);
+
+        MapEventsReceiver mReceive = new MapEventsReceiver() {
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+                TextView latLong = findViewById(R.id.latLong);
+                latLong.setText(p.getLatitude() + " , " + p.getLongitude());
+                startMarker.setPosition(p);
+                return false;
+            }
+
+
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                return false;
+            }
+        };
+
+
+        MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
+        map.getOverlays().add(OverlayEvents);
     }
 
     public void onResume(){
