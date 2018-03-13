@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -13,6 +16,9 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polyline;
+
+import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -32,9 +38,24 @@ public class MapActivity extends AppCompatActivity {
         mapController.setZoom(5);
         GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
         mapController.setCenter(startPoint);
+
         final Marker startMarker = new Marker(map);
         startMarker.setInfoWindow(null);
         map.getOverlays().add(startMarker);
+
+        RoadManager roadManager = new OSRMRoadManager(this);
+        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        waypoints.add(new GeoPoint(51.26,-93.86));
+        waypoints.add(startMarker.getPosition());
+        Road road = roadManager.getRoad(waypoints);
+        Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+        map.getOverlays().add(roadOverlay);
+        map.invalidate();
+
+
+
+
+
 
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
@@ -53,9 +74,12 @@ public class MapActivity extends AppCompatActivity {
         };
 
 
+
+
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
     }
+
 
     public void onResume(){
         super.onResume();
