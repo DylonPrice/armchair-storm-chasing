@@ -41,15 +41,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        profileSection = findViewById(R.id.prof_section);
-        signOutBtn = findViewById(R.id.btn_logout);
         signInBtn = findViewById(R.id.btn_login);
-        name = findViewById(R.id.name);
-        email = findViewById(R.id.email);
-        profilePicture = findViewById(R.id.profile_pic);
         signInBtn.setOnClickListener(this);
-        signOutBtn.setOnClickListener(this);
-        profileSection.setVisibility(View.GONE);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleAPiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API, signInOptions).build();
     }
@@ -59,9 +52,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         switch(view.getId()){
             case R.id.btn_login:
                 signIn();
-                break;
-            case R.id.btn_logout:
-                signOut();
                 break;
         }
     }
@@ -80,16 +70,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleAPiClient);
         startActivityForResult(intent, req_code);
         toMapActivity();
-    }
-
-    private void signOut(){
-        Auth.GoogleSignInApi.signOut(googleAPiClient).setResultCallback(new ResultCallback<Status>(){
-
-            @Override
-            public void onResult(@NonNull Status status) {
-                updateUI(false);
-            }
-        });
     }
 
     private void handleResult(GoogleSignInResult result){
