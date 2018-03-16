@@ -44,14 +44,15 @@ public class MapActivity extends AppCompatActivity {
 
         final Marker startMarker = new Marker(map);
         startMarker.setInfoWindow(null);
+        startMarker.setPosition(new GeoPoint(38.0, -95.0));
         map.getOverlays().add(startMarker);
 
         RoadManager roadManager = new OSRMRoadManager(this);
         ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-        waypoints.add(new GeoPoint(51.26,-93.86));
+        waypoints.add(startPoint);
         waypoints.add(startMarker.getPosition());
         Road road = roadManager.getRoad(waypoints);
-        Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+        Polyline roadOverlay = roadManager.buildRoadOverlay(road);
         map.getOverlays().add(roadOverlay);
         map.invalidate();
 
