@@ -1,6 +1,7 @@
 package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
+import android.os.DropBoxManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,13 +18,8 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -94,9 +90,16 @@ public class MapActivity extends AppCompatActivity {
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
         roadOverlay = roadManager.buildRoadOverlay(road);
-        startMarker.setTitle(Double.toString(road.mDuration) + "sec.");
+        updateDurationText(road, startMarker);
         System.out.println(roadOverlay.getPoints());
         map.getOverlays().add(roadOverlay);
+    }
+
+    public void updateDurationText(Road road, Marker startMarker){
+        Double totalSeconds = road.mDuration;
+        Double hours = Math.floor(totalSeconds/3600);
+        Double minutes = Math.floor((totalSeconds % 3600)/60);
+        startMarker.setTitle(Double.toString(hours) + " h " + Double.toString(minutes) + " min");
     }
 
 
