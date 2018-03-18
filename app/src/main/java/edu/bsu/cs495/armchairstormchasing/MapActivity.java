@@ -17,9 +17,16 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
+import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
+import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -41,17 +48,19 @@ public class MapActivity extends AppCompatActivity {
         mapController.setZoom(5);
         final GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
         mapController.setCenter(startPoint);
+        final Road road = new Road();
 
         final Marker startMarker = new Marker(map);
-        startMarker.setInfoWindow(null);
         startMarker.setPosition(new GeoPoint(38.0, -95.0));
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        startMarker.setTextLabelBackgroundColor(backgroundColor);
+        startMarker.setTextLabelFontSize(fontSizeDp);
+        startMarker.setIcon(null);
         map.getOverlays().add(startMarker);
 
         final RoadManager roadManager = new OSRMRoadManager(this);
         final ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
         final Polyline roadOverlay = new Polyline();
-        final Road road = new Road();
+
 
 
         MapEventsReceiver mReceive = new MapEventsReceiver() {
@@ -60,7 +69,7 @@ public class MapActivity extends AppCompatActivity {
                 TextView latLong = findViewById(R.id.latLong);
                 latLong.setText(p.getLatitude() + " , " + p.getLongitude());
                 startMarker.setPosition(p);
-                updateRoute(waypoints,roadManager,startPoint,p,map, roadOverlay, road);
+                updateRoute(waypoints,roadManager,startPoint,p,map, roadOverlay, road, startMarker);
                 return false;
             }
 
@@ -78,15 +87,16 @@ public class MapActivity extends AppCompatActivity {
         map.getOverlays().add(OverlayEvents);
 
     }
-    public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road){
+    public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
         waypoints.clear();
         map.getOverlays().remove(roadOverlay);
         waypoints.add(currentPos);
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
         roadOverlay = roadManager.buildRoadOverlay(road);
+        startMarker.setTitle(Double.toString(road.mDuration) + "sec.");
+        System.out.println(roadOverlay.getPoints());
         map.getOverlays().add(roadOverlay);
-        System.out.println(road.mDuration);
     }
 
 
