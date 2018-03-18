@@ -33,32 +33,25 @@ public class MapActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        MapView map = findViewById(R.id.map);
+        final MapView map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(5);
-        GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
+        final GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
         mapController.setCenter(startPoint);
 
         final Marker startMarker = new Marker(map);
         startMarker.setInfoWindow(null);
         startMarker.setPosition(new GeoPoint(38.0, -95.0));
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         map.getOverlays().add(startMarker);
 
-        RoadManager roadManager = new OSRMRoadManager(this);
-        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-        waypoints.add(startPoint);
-        waypoints.add(startMarker.getPosition());
-        Road road = roadManager.getRoad(waypoints);
-        Polyline roadOverlay = roadManager.buildRoadOverlay(road);
-        map.getOverlays().add(roadOverlay);
-        map.invalidate();
-
-
-
-
+        final RoadManager roadManager = new OSRMRoadManager(this);
+        final ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        final Polyline roadOverlay = new Polyline();
+        final Road road = new Road();
 
 
         MapEventsReceiver mReceive = new MapEventsReceiver() {
@@ -67,6 +60,7 @@ public class MapActivity extends AppCompatActivity {
                 TextView latLong = findViewById(R.id.latLong);
                 latLong.setText(p.getLatitude() + " , " + p.getLongitude());
                 startMarker.setPosition(p);
+                updateRoute(waypoints,roadManager,startPoint,p,map, roadOverlay, road);
                 return false;
             }
 
@@ -82,6 +76,17 @@ public class MapActivity extends AppCompatActivity {
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
+
+    }
+    public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road){
+        waypoints.clear();
+        map.getOverlays().remove(roadOverlay);
+        waypoints.add(currentPos);
+        waypoints.add(p);
+        road = roadManager.getRoad(waypoints);
+        roadOverlay = roadManager.buildRoadOverlay(road);
+        map.getOverlays().add(roadOverlay);
+        System.out.println(road.mDuration);
     }
 
 
