@@ -41,8 +41,8 @@ public class MapActivity extends AppCompatActivity {
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(5);
-        final GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
-        mapController.setCenter(startPoint);
+        final GeoPoint currentPos = new GeoPoint(37.0902, -95.7129);
+        mapController.setCenter(currentPos);
         final Road road = new Road();
 
         final Marker startMarker = new Marker(map);
@@ -64,7 +64,7 @@ public class MapActivity extends AppCompatActivity {
                 TextView latLong = findViewById(R.id.latLong);
                 latLong.setText(p.getLatitude() + " , " + p.getLongitude());
                 startMarker.setPosition(p);
-                updateRoute(waypoints,roadManager,startPoint,p,map, roadOverlay, road, startMarker);
+                updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
 
@@ -95,10 +95,16 @@ public class MapActivity extends AppCompatActivity {
     }
 
     public void updateDurationText(Road road, Marker startMarker){
-        Double totalSeconds = road.mDuration;
-        Double hours = Math.floor(totalSeconds/3600);
-        Double minutes = Math.floor((totalSeconds % 3600)/60);
+        double totalSeconds = road.mDuration;
+        double hours = Math.floor(totalSeconds/3600);
+        double minutes = Math.floor((totalSeconds % 3600)/60);
         startMarker.setTitle(Double.toString(hours) + " h " + Double.toString(minutes) + " min");
+    }
+    public void updateCurrentLocation(Road road, GeoPoint currentPos){
+        double totalTime = road.mDuration;
+        double totalMiles = road.mLength;
+        double MPS = totalTime/totalMiles;
+
     }
 
 
@@ -109,5 +115,9 @@ public class MapActivity extends AppCompatActivity {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+    }
+    @Override
+    public void onBackPressed() {
+
     }
 }
