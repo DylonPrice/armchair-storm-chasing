@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadLeg;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -19,6 +20,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
+import java.util.Timer;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -44,6 +46,7 @@ public class MapActivity extends AppCompatActivity {
         final GeoPoint currentPos = new GeoPoint(37.0902, -95.7129);
         mapController.setCenter(currentPos);
         final Road road = new Road();
+        final Timer timer = new Timer();
 
         final Marker startMarker = new Marker(map);
         startMarker.setPosition(new GeoPoint(38.0, -95.0));
@@ -89,21 +92,20 @@ public class MapActivity extends AppCompatActivity {
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
         roadOverlay = roadManager.buildRoadOverlay(road);
-        updateDurationText(road, startMarker);
+        startMarker.setTitle(road.getLengthDurationText(this,-1));
+        System.out.println();
         System.out.println(roadOverlay.getPoints());
         map.getOverlays().add(roadOverlay);
     }
 
-    public void updateDurationText(Road road, Marker startMarker){
-        double totalSeconds = road.mDuration;
-        double hours = Math.floor(totalSeconds/3600);
-        double minutes = Math.floor((totalSeconds % 3600)/60);
-        startMarker.setTitle(Double.toString(hours) + " h " + Double.toString(minutes) + " min");
-    }
     public void updateCurrentLocation(Road road, GeoPoint currentPos){
-        double totalTime = road.mDuration;
-        double totalMiles = road.mLength;
-        double MPS = totalTime/totalMiles;
+        for (int i = 0; i < road.mLegs.size(); i++){
+            RoadLeg currentLeg = road.mLegs.get(i);
+            double legTime = currentLeg.mDuration;
+            double legLength = currentLeg.mLength;
+            double kps = legLength/legTime;
+
+        }
 
     }
 
