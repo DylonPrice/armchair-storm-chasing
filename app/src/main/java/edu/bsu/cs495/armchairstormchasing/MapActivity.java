@@ -7,6 +7,10 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.widget.TextView;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadLeg;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -14,6 +18,12 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polyline;
+import java.util.ArrayList;
+import java.util.Timer;
+
+import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
+import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -27,17 +37,29 @@ public class MapActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        MapView map = findViewById(R.id.map);
+        final MapView map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(5);
-        GeoPoint startPoint = new GeoPoint(37.0902, -95.7129);
-        mapController.setCenter(startPoint);
+        final GeoPoint currentPos = new GeoPoint(37.0902, -95.7129);
+        mapController.setCenter(currentPos);
+        final Road road = new Road();
+        final Timer timer = new Timer();
+
         final Marker startMarker = new Marker(map);
-        startMarker.setInfoWindow(null);
+        startMarker.setPosition(new GeoPoint(38.0, -95.0));
+        startMarker.setTextLabelBackgroundColor(backgroundColor);
+        startMarker.setTextLabelFontSize(fontSizeDp);
+        startMarker.setIcon(null);
         map.getOverlays().add(startMarker);
+
+        final RoadManager roadManager = new OSRMRoadManager(this);
+        final ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        final Polyline roadOverlay = new Polyline();
+
+
 
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
@@ -45,6 +67,7 @@ public class MapActivity extends AppCompatActivity {
                 TextView latLong = findViewById(R.id.latLong);
                 latLong.setText(p.getLatitude() + " , " + p.getLongitude());
                 startMarker.setPosition(p);
+                updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
 
@@ -56,9 +79,36 @@ public class MapActivity extends AppCompatActivity {
         };
 
 
+
+
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
+
     }
+    public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
+        waypoints.clear();
+        map.getOverlays().remove(roadOverlay);
+        waypoints.add(currentPos);
+        waypoints.add(p);
+        road = roadManager.getRoad(waypoints);
+        roadOverlay = roadManager.buildRoadOverlay(road);
+        startMarker.setTitle(road.getLengthDurationText(this,-1));
+        System.out.println();
+        System.out.println(roadOverlay.getPoints());
+        map.getOverlays().add(roadOverlay);
+    }
+
+    public void updateCurrentLocation(Road road, GeoPoint currentPos){
+        for (int i = 0; i < road.mLegs.size(); i++){
+            RoadLeg currentLeg = road.mLegs.get(i);
+            double legTime = currentLeg.mDuration;
+            double legLength = currentLeg.mLength;
+            double kps = legLength/legTime;
+
+        }
+
+    }
+
 
     public void onResume(){
         super.onResume();
@@ -67,5 +117,9 @@ public class MapActivity extends AppCompatActivity {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+    }
+    @Override
+    public void onBackPressed() {
+
     }
 }
