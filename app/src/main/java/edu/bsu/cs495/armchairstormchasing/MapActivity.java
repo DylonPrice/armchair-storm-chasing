@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.MenuItem;
 import android.widget.TextView;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -82,5 +83,13 @@ public class MapActivity extends AppCompatActivity {
         mainDrawerLayout.addDrawerListener(mainToggle);
         mainToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(mainToggle.onOptionsItemSelected(item)){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
