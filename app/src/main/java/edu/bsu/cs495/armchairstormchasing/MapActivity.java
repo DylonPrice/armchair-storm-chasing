@@ -2,10 +2,18 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.internal.NavigationMenuItemView;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -15,7 +23,10 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DrawerLayout mainDrawerLayout;
+    private ActionBarDrawerToggle mainToggle;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +69,10 @@ public class MapActivity extends AppCompatActivity {
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
+
+        setUpNavigationDrawer();
+
+
     }
 
     public void onResume(){
@@ -67,5 +82,41 @@ public class MapActivity extends AppCompatActivity {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+    }
+
+    public void setUpNavigationDrawer(){
+        mainDrawerLayout = (DrawerLayout) findViewById(R.id.mapActivity);
+        mainToggle = new ActionBarDrawerToggle(this, mainDrawerLayout, R.string.open, R.string.close);
+        mainDrawerLayout.addDrawerListener(mainToggle);
+        mainToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(mainToggle.onOptionsItemSelected(item)){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item){
+        int id = item.getItemId();
+
+        if(id == R.id.changeDestination){
+            Toast.makeText(this, "Clicked on change destination", Toast.LENGTH_SHORT).show();
+        }
+
+        if(id == R.id.stopTravel){
+            Toast.makeText(this, "Clicked on stop travel", Toast.LENGTH_SHORT).show();
+        }
+
+        if(id == R.id.logout){
+            Toast.makeText(this, "Clicked on logout", Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 }
