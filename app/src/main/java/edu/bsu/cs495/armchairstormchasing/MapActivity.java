@@ -2,9 +2,12 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.MenuItem;
 import android.widget.TextView;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
@@ -26,6 +29,9 @@ import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgro
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
 
 public class MapActivity extends AppCompatActivity {
+
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,12 +85,29 @@ public class MapActivity extends AppCompatActivity {
         };
 
 
-
+        setUpNavDrawer();
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
 
     }
+
+    private void setUpNavDrawer() {
+         mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
+         mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+         mDrawerLayout.addDrawerListener(mToggle);
+         mToggle.syncState();
+         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(mToggle.onOptionsItemSelected(item)){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
         waypoints.clear();
         map.getOverlays().remove(roadOverlay);
@@ -108,7 +131,6 @@ public class MapActivity extends AppCompatActivity {
         }
 
     }
-
 
     public void onResume(){
         super.onResume();
