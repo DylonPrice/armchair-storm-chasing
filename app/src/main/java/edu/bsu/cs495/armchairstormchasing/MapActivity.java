@@ -34,6 +34,7 @@ public class MapActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mToggle;
 
     @Override public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         Context ctx = getApplicationContext();
         //important! set your user agent to prevent getting banned from the osm servers
@@ -43,19 +44,22 @@ public class MapActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        Bundle b = getIntent().getExtras();
+        double startLat = b.getDouble("startLat");
+        double startLon = b.getDouble("startLon");
         final MapView map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
-        mapController.setZoom(5);
-        final GeoPoint currentPos = new GeoPoint(37.0902, -95.7129);
+        mapController.setZoom(13.5);
+        final GeoPoint currentPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(currentPos);
         final Road road = new Road();
         final Timer timer = new Timer();
 
         final Marker startMarker = new Marker(map);
-        startMarker.setPosition(new GeoPoint(38.0, -95.0));
+        startMarker.setPosition(new GeoPoint(startLat, startLon));
         startMarker.setTextLabelBackgroundColor(backgroundColor);
         startMarker.setTextLabelFontSize(fontSizeDp);
         startMarker.setIcon(null);
@@ -98,6 +102,11 @@ public class MapActivity extends AppCompatActivity {
          mDrawerLayout.addDrawerListener(mToggle);
          mToggle.syncState();
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+<<<<<<< Updated upstream
+=======
+         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+         navigationView.setNavigationItemSelectedListener(this);
+>>>>>>> Stashed changes
     }
 
     @Override
@@ -127,7 +136,6 @@ public class MapActivity extends AppCompatActivity {
             double legTime = currentLeg.mDuration;
             double legLength = currentLeg.mLength;
             double kps = legLength/legTime;
-
         }
 
     }
@@ -144,4 +152,31 @@ public class MapActivity extends AppCompatActivity {
     public void onBackPressed() {
 
     }
+<<<<<<< Updated upstream
+=======
+
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item){
+        int id = item.getItemId();
+
+        if(id == R.id.Logout){
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                            Toast.makeText(getApplicationContext(), "Logged Out", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getApplicationContext(), Login.class);
+                            startActivity(intent);
+                        }
+                    }
+            );
+        }
+        if(id == R.id.changeStartingLocation){
+            Intent intent = new Intent(this, CityMenuActivity.class);
+            startActivity(intent);
+        }
+        return false;
+    }
+>>>>>>> Stashed changes
 }
