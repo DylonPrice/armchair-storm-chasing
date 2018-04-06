@@ -46,6 +46,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private GoogleApiClient mGoogleApiClient;
 
     @Override public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         Context ctx = getApplicationContext();
         //important! set your user agent to prevent getting banned from the osm servers
@@ -55,19 +56,22 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        Bundle b = getIntent().getExtras();
+        double startLat = b.getDouble("startLat");
+        double startLon = b.getDouble("startLon");
         final MapView map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
-        mapController.setZoom(5);
-        final GeoPoint currentPos = new GeoPoint(37.0902, -95.7129);
+        mapController.setZoom(13.5);
+        final GeoPoint currentPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(currentPos);
         final Road road = new Road();
         final Timer timer = new Timer();
 
         final Marker startMarker = new Marker(map);
-        startMarker.setPosition(new GeoPoint(38.0, -95.0));
+        startMarker.setPosition(new GeoPoint(startLat, startLon));
         startMarker.setTextLabelBackgroundColor(backgroundColor);
         startMarker.setTextLabelFontSize(fontSizeDp);
         startMarker.setIcon(null);
@@ -117,8 +121,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
          mDrawerLayout.addDrawerListener(mToggle);
          mToggle.syncState();
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
-        navigationView.setNavigationItemSelectedListener(this);
+
+         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -148,7 +154,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             double legTime = currentLeg.mDuration;
             double legLength = currentLeg.mLength;
             double kps = legLength/legTime;
-
         }
 
     }
@@ -183,6 +188,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     }
             );
         }
+  
+        if(id == R.id.changeStartingLocation){
+            Intent intent = new Intent(this, CityMenuActivity.class);
+            startActivity(intent);
+        }
         return false;
     }
+
 }

@@ -33,7 +33,6 @@ import java.io.InputStream;
 public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     private LinearLayout profileSection;
-    private Button signOutBtn;
     private SignInButton signInBtn;
     private TextView name, email;
     private ImageView profilePicture;
@@ -65,17 +64,13 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
 
     }
 
-    public void toMapActivity(){
-        Intent intent = new Intent(this, MapActivity.class);
-        startActivity(intent);
-    }
-
     private void signIn(){
         Intent intent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(intent, req_code);
     }
 
 
+<<<<<<< Updated upstream
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -83,6 +78,15 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
+=======
+    private void updateUI(){
+        toCityMenu();
+    }
+
+    public void toCityMenu(){
+        Intent intent = new Intent(this, CityMenuActivity.class);
+        startActivity(intent);
+>>>>>>> Stashed changes
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask){

@@ -19,4 +19,8 @@
 
     </item>
 
+    <item
+        android:id="@+id/changeStartingLocation"
+        android:title="Change Starting Location"></item>
+
 </menu>
