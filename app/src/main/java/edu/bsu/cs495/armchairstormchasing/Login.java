@@ -70,7 +70,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     }
 
 
-<<<<<<< Updated upstream
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -78,7 +77,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-=======
+
     private void updateUI(){
         toCityMenu();
     }
@@ -86,7 +85,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     public void toCityMenu(){
         Intent intent = new Intent(this, CityMenuActivity.class);
         startActivity(intent);
->>>>>>> Stashed changes
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask){
