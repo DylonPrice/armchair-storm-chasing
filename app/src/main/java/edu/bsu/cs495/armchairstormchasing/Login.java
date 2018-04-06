@@ -15,14 +15,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.Task;
 
 import java.io.InputStream;
 
@@ -32,7 +36,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private SignInButton signInBtn;
     private TextView name, email;
     private ImageView profilePicture;
-    private GoogleApiClient googleAPiClient;
+    private GoogleSignInClient mGoogleSignInClient;
     private static final int req_code = 9001;
 
 
@@ -43,7 +47,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         signInBtn = findViewById(R.id.btn_login);
         signInBtn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        googleAPiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API, signInOptions).build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
     }
 
     @Override
@@ -61,48 +65,18 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     }
 
     private void signIn(){
-        Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleAPiClient);
+        Intent intent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(intent, req_code);
-        toMapActivity();
     }
 
-    private void handleResult(GoogleSignInResult result){
-        if (result.isSuccess()){
-            GoogleSignInAccount account = result.getSignInAccount();
-            String userName = account.getDisplayName();
-            String userEmail = account.getEmail();
-            String imageUrl = account.getPhotoUrl().toString();
-            name.setText(userName);
-            email.setText(userEmail);
-            if (account.getPhotoUrl() != null){
-                new LoadProfileImage(profilePicture).execute(imageUrl);
-            }
-            updateUI(true);
-        }
-        else {
-            updateUI(false);
-        }
-    }
-
-    private void updateUI(boolean isLoggedIn){
-        if (isLoggedIn){
-            profileSection.setVisibility(View.VISIBLE);
-            signInBtn.setVisibility(View.GONE);
-        }
-        else {
-            profileSection.setVisibility(View.GONE);
-            signInBtn.setVisibility(View.VISIBLE);
-        }
-    }
 
 <<<<<<< Updated upstream
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == req_code){
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleResult(result);
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
         }
 =======
     private void updateUI(){
@@ -113,6 +87,19 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         Intent intent = new Intent(this, CityMenuActivity.class);
         startActivity(intent);
 >>>>>>> Stashed changes
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask){
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            updateUI();
+        } catch (ApiException e) {
+            updateUI();
+        }
+    }
+
+    private void updateUI(){
+            toMapActivity();
     }
 }
 
