@@ -3,10 +3,12 @@ package edu.bsu.cs495.armchairstormchasing;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -23,6 +25,11 @@ public class CityMenuActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_menu);
         list_view = findViewById(R.id.city_list_view);
+        //list_view.setAdapter(null);
+        TextView textView = new TextView(getBaseContext());
+        textView.setText("Select a Starting Location");
+        textView.setGravity(Gravity.CENTER);
+        list_view.addHeaderView(textView);
         cities.add("Montgomery, Alabama");
         cities.add("Juneau, Alaska");
         cities.add("Phoenix, Arizona");
