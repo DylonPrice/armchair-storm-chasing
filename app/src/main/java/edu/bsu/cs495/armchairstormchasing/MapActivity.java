@@ -24,6 +24,8 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
 import java.util.Timer;
+import java.net.URL;
+import java.io.File;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -42,6 +44,7 @@ public class MapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_map);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
 
         final MapView map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -64,8 +67,6 @@ public class MapActivity extends AppCompatActivity {
         final RoadManager roadManager = new OSRMRoadManager(this);
         final ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
         final Polyline roadOverlay = new Polyline();
-
-
 
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override

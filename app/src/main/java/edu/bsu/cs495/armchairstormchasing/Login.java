@@ -21,12 +21,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 
 import java.io.InputStream;
 
-public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
+public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener, IAsyncResponse {
 
     private LinearLayout profileSection;
     private Button signOutBtn;
@@ -40,11 +38,26 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // DOWNLOAD TEST
+        testDownload();
+        // DOWNLOAD TEST COMPLETE
         setContentView(R.layout.activity_login);
         signInBtn = findViewById(R.id.btn_login);
         signInBtn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleAPiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API, signInOptions).build();
+    }
+
+    public void testDownload(){
+        DownloadDataAsync asyncDownload = new DownloadDataAsync(this);
+        asyncDownload.delegate = this;
+        String fileUrl = "https://www.weather.gov/source/crh/shapefiles/wwa.kmz";
+        new DownloadDataAsync(this).execute(fileUrl);
+    }
+
+    @Override
+    public void onProcessFinish(String output){
+
     }
 
     @Override
