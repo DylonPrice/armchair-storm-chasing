@@ -50,8 +50,6 @@ class DownloadDataAsync extends AsyncTask<String, String, String> {
 
             result = getStringFromFile(filepath);
 
-            System.out.println("Pause");
-
         } catch (Exception e){
             Log.e("DownloadDataAsync", "Download data failed " + e.toString());
         }
