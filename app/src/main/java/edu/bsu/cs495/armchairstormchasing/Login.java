@@ -51,7 +51,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     public void testDownload(){
         DownloadDataAsync asyncDownload = new DownloadDataAsync(this);
         asyncDownload.delegate = this;
-        String fileUrl = "https://www.weather.gov/source/crh/shapefiles/wwa.kmz";
+        String fileUrl = "https://www.weather.gov/source/crh/shapefiles/warnings.kml";
         new DownloadDataAsync(this).execute(fileUrl);
     }
 
