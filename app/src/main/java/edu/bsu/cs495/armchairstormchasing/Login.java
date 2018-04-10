@@ -73,10 +73,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == req_code){
+        if (requestCode == req_code) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
+    }
 
     private void updateUI(){
         toCityMenu();
@@ -94,10 +95,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         } catch (ApiException e) {
             updateUI();
         }
-    }
-
-    private void updateUI(){
-            toMapActivity();
     }
 }
 
