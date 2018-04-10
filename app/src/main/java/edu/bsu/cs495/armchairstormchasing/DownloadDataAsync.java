@@ -25,7 +25,8 @@ class DownloadDataAsync extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... inputUrl) {
         int count;
-        String filepath = "";
+        String filepath;
+        String result = "";
         Date currentTime = Calendar.getInstance().getTime();
 
         try{
@@ -47,14 +48,39 @@ class DownloadDataAsync extends AsyncTask<String, String, String> {
 
             filepath = file.getAbsolutePath();
 
-            System.out.println("Pause");
+            result = getStringFromFile(filepath);
 
         } catch (Exception e){
             Log.e("DownloadDataAsync", "Download data failed " + e.toString());
         }
 
-        return filepath;
+        return result;
+    }
 
+    public static String convertStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder builder = new StringBuilder();
+        String line = null;
+        Boolean firstLine = true;
+        while ((line = reader.readLine()) != null){
+            if (firstLine){
+                builder.append(line);
+                firstLine = false;
+            } else {
+                builder.append("\n").append(line);
+            }
+        }
+
+        reader.close();
+        return builder.toString();
+    }
+
+    public static String getStringFromFile(String filepath) throws IOException {
+        File file = new File(filepath);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        String result = convertStreamToString(fileInputStream);
+        fileInputStream.close();
+        return result;
     }
 
 
