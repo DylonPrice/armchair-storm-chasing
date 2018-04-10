@@ -44,6 +44,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
+    long refreshTimeforMovement = 120;
+    final Timer timer = new Timer();
+    GeoPoint currentPos;
+    Marker startMarker;
+
 
     @Override public void onCreate(Bundle savedInstanceState) {
 
@@ -68,9 +73,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         final GeoPoint currentPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(currentPos);
         final Road road = new Road();
-        final Timer timer = new Timer();
 
-        final Marker startMarker = new Marker(map);
+
+        startMarker = new Marker(map);
         startMarker.setPosition(new GeoPoint(startLat, startLon));
         startMarker.setTextLabelBackgroundColor(backgroundColor);
         startMarker.setTextLabelFontSize(fontSizeDp);
@@ -143,17 +148,19 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         road = roadManager.getRoad(waypoints);
         roadOverlay = roadManager.buildRoadOverlay(road);
         startMarker.setTitle(road.getLengthDurationText(this,-1));
-        System.out.println();
-        System.out.println(roadOverlay.getPoints());
         map.getOverlays().add(roadOverlay);
+        updateCurrentLocation(road);
     }
 
-    public void updateCurrentLocation(Road road, GeoPoint currentPos){
-        for (int i = 0; i < road.mLegs.size(); i++){
-            RoadLeg currentLeg = road.mLegs.get(i);
+    public void updateCurrentLocation(Road road){
+        for (int i = 0; i < road.mRouteHigh.size(); i++){
+            System.out.println(road.mRouteHigh.get(i));
+
+            /*
             double legTime = currentLeg.mDuration;
             double legLength = currentLeg.mLength;
             double kps = legLength/legTime;
+        */
         }
 
     }
