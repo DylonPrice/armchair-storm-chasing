@@ -56,8 +56,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     }
 
     @Override
-    public void onProcessFinish(String output){
-
+    public String onProcessFinish(String output){
+        return output;
     }
 
     @Override

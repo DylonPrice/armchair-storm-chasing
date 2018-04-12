@@ -5,5 +5,5 @@ package edu.bsu.cs495.armchairstormchasing;
  */
 
 public interface IAsyncResponse {
-    void onProcessFinish(String output);
+    String onProcessFinish(String output);
 }
