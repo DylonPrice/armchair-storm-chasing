@@ -35,6 +35,7 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -44,10 +45,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
-    long refreshTimeforMovement = 120;
     final Timer timer = new Timer();
     GeoPoint currentPos;
     Marker startMarker;
+    int currentPointOnRoute;
+    ArrayList<GeoPoint> routePoints = new ArrayList<>();
+   // Road road = new Road();
 
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -153,16 +156,32 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     }
 
     public void updateCurrentLocation(Road road){
+        int totalPointsOnRoute = 0;
+        currentPointOnRoute = 0;
+        routePoints.clear();
         for (int i = 0; i < road.mRouteHigh.size(); i++){
-            System.out.println(road.mRouteHigh.get(i));
-
-            /*
-            double legTime = currentLeg.mDuration;
-            double legLength = currentLeg.mLength;
-            double kps = legLength/legTime;
-        */
+            routePoints.add(road.mRouteHigh.get(i));
+            totalPointsOnRoute+=1;
         }
-
+        double legTime = road.mDuration;
+        double secPerLocation = (legTime / totalPointsOnRoute)*1000;
+        long movementInterval = (long)secPerLocation;
+        System.out.println(movementInterval);
+        while (currentPointOnRoute < routePoints.size()) {
+            if(currentPointOnRoute == routePoints.size()){
+                System.out.println("FINISHED__________________________________________________________");
+                break;
+            }
+            timer.schedule(new moveUser(), 1000);
+            System.out.println(currentPos);
+        }
+    }
+    class moveUser extends TimerTask{
+        public void run(){
+            currentPos = routePoints.get(currentPointOnRoute);
+            System.out.println(routePoints.get(currentPointOnRoute));
+            currentPointOnRoute+=1;
+        }
     }
 
     public void onResume(){
