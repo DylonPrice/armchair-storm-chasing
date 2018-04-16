@@ -50,8 +50,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     Marker startMarker;
     int currentPointOnRoute;
     ArrayList<GeoPoint> routePoints = new ArrayList<>();
-   // Road road = new Road();
-
+    Road road = new Road();
+    MapView map;
 
     @Override public void onCreate(Bundle savedInstanceState) {
 
@@ -67,7 +67,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         Bundle b = getIntent().getExtras();
         double startLat = b.getDouble("startLat");
         double startLon = b.getDouble("startLon");
-        final MapView map = findViewById(R.id.map);
+        map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
@@ -75,7 +75,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         mapController.setZoom(13.5);
         final GeoPoint currentPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(currentPos);
-        final Road road = new Road();
+        //final Road road = new Road();
 
 
         startMarker = new Marker(map);
@@ -163,24 +163,27 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             routePoints.add(road.mRouteHigh.get(i));
             totalPointsOnRoute+=1;
         }
-        double legTime = road.mDuration;
-        double secPerLocation = (legTime / totalPointsOnRoute)*1000;
-        long movementInterval = (long)secPerLocation;
-        System.out.println(movementInterval);
-        while (currentPointOnRoute < routePoints.size()) {
-            if(currentPointOnRoute == routePoints.size()){
-                System.out.println("FINISHED__________________________________________________________");
-                break;
-            }
-            timer.schedule(new moveUser(), 1000);
-            System.out.println(currentPos);
+        //double legTime = road.mDuration;
+        //double secPerLocation = (legTime / totalPointsOnRoute)*1000;
+        //String secPerLocationString = Double.toString(secPerLocation);
+       // long movementInterval = Long.parseLong(secPerLocationString.replace(".", ""));
+        //System.out.println(movementInterval);
+        for(int j = 0; j < totalPointsOnRoute -1; j++){
+            timer.schedule(new moveUser(), 50);
+            currentPointOnRoute+=1;
         }
+        //timer.cancel();
     }
+
     class moveUser extends TimerTask{
         public void run(){
-            currentPos = routePoints.get(currentPointOnRoute);
-            System.out.println(routePoints.get(currentPointOnRoute));
-            currentPointOnRoute+=1;
+                currentPos = routePoints.get(currentPointOnRoute);
+                Marker newMarker = new Marker(map);
+                newMarker.setPosition(currentPos);
+                newMarker.setTextLabelBackgroundColor(backgroundColor);
+                newMarker.setTextLabelFontSize(fontSizeDp);
+                newMarker.setIcon(null);
+                map.getOverlays().add(newMarker);
         }
     }
 
