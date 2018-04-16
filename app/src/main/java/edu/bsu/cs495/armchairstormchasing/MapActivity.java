@@ -2,6 +2,7 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -49,6 +50,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     GeoPoint currentPos;
     Marker startMarker;
     int currentPointOnRoute;
+    int totalPointsOnRoute;
     ArrayList<GeoPoint> routePoints = new ArrayList<>();
     Road road = new Road();
     MapView map;
@@ -75,8 +77,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         mapController.setZoom(13.5);
         final GeoPoint currentPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(currentPos);
-        //final Road road = new Road();
-
 
         startMarker = new Marker(map);
         startMarker.setPosition(new GeoPoint(startLat, startLon));
@@ -96,12 +96,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 TextView latLong = findViewById(R.id.latLong);
                 latLong.setText(p.getLatitude() + " , " + p.getLongitude());
-                startMarker.setPosition(p);
                 updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
-
-
             @Override
             public boolean longPressHelper(GeoPoint p) {
                 return false;
@@ -156,35 +153,41 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     }
 
     public void updateCurrentLocation(Road road){
-        int totalPointsOnRoute = 0;
+        totalPointsOnRoute = 0;
         currentPointOnRoute = 0;
         routePoints.clear();
         for (int i = 0; i < road.mRouteHigh.size(); i++){
             routePoints.add(road.mRouteHigh.get(i));
             totalPointsOnRoute+=1;
         }
-        //double legTime = road.mDuration;
-        //double secPerLocation = (legTime / totalPointsOnRoute)*1000;
-        //String secPerLocationString = Double.toString(secPerLocation);
-       // long movementInterval = Long.parseLong(secPerLocationString.replace(".", ""));
-        //System.out.println(movementInterval);
-        for(int j = 0; j < totalPointsOnRoute -1; j++){
-            timer.schedule(new moveUser(), 50);
-            currentPointOnRoute+=1;
-        }
-        //timer.cancel();
+
+        final Handler handler = new Handler();
+        final double delay = (road.mLength/road.mRouteHigh.size()) * 1000;
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateMarker();
+                handler.postDelayed(this, Double.valueOf(delay).longValue());
+            }
+        }, Double.valueOf(delay).longValue());
     }
 
-    class moveUser extends TimerTask{
-        public void run(){
-                currentPos = routePoints.get(currentPointOnRoute);
-                Marker newMarker = new Marker(map);
-                newMarker.setPosition(currentPos);
-                newMarker.setTextLabelBackgroundColor(backgroundColor);
-                newMarker.setTextLabelFontSize(fontSizeDp);
-                newMarker.setIcon(null);
-                map.getOverlays().add(newMarker);
+    private void updateMarker(){
+        try{
+            currentPos = routePoints.get(currentPointOnRoute);
+            startMarker.setPosition(currentPos);
+            startMarker.setTextLabelBackgroundColor(backgroundColor);
+            startMarker.setTextLabelFontSize(fontSizeDp);
+            startMarker.setIcon(null);
+            map.getOverlays().add(startMarker);
+            map.postInvalidate();
+            currentPointOnRoute+=1;
         }
+        catch (IndexOutOfBoundsException e){
+            Toast.makeText(this, "You have arrived", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     public void onResume(){
