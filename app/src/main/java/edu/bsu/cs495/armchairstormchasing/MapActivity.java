@@ -2,6 +2,7 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +37,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,7 +49,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
-    final Timer timer = new Timer();
     GeoPoint currentPos;
     Marker startMarker;
     int currentPointOnRoute;
@@ -94,8 +96,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                TextView latLong = findViewById(R.id.latLong);
-                latLong.setText(p.getLatitude() + " , " + p.getLongitude());
+
                 updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
@@ -141,15 +142,18 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     }
 
     public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
+        map.getOverlays().clear();
         waypoints.clear();
-        map.getOverlays().remove(roadOverlay);
+
         waypoints.add(currentPos);
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
         roadOverlay = roadManager.buildRoadOverlay(road);
-        startMarker.setTitle(road.getLengthDurationText(this,-1));
+        startMarker.setTitle(road.getLengthDurationText(this, -1));
         map.getOverlays().add(roadOverlay);
+        map.postInvalidate();
         updateCurrentLocation(road);
+
     }
 
     public void updateCurrentLocation(Road road){
@@ -162,7 +166,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
 
         final Handler handler = new Handler();
-        final double delay = (road.mLength/road.mRouteHigh.size()) * 1000;
+        final double delay = (road.mDuration/routePoints.size()) * 1000;
 
         handler.postDelayed(new Runnable() {
             @Override
