@@ -3,6 +3,7 @@ package edu.bsu.cs495.armchairstormchasing;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -149,7 +151,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         waypoints.add(currentPos);
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
-        roadOverlay = roadManager.buildRoadOverlay(road);
+        roadOverlay.setPoints(road.mRouteHigh);
+        roadOverlay.setColor(Color.BLUE);
         startMarker.setTitle(road.getLengthDurationText(this, -1));
         map.getOverlays().add(roadOverlay);
         map.postInvalidate();
@@ -182,6 +185,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             @Override
             public void run() {
                 travelDialog.show();
+                map.setEnabled(false);
             }
         }, 500);
     }
@@ -196,6 +200,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
 
         final double delay = (road.mDuration/routePoints.size()) * 1000;
+        View fadeBackground = findViewById(R.id.fadeBackground);
+        fadeBackground.setVisibility(View.VISIBLE);
+        fadeBackground.animate().alpha(0.5f);
 
         handler = new Handler();
         runnable = new Runnable(){
@@ -222,8 +229,15 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
         catch (IndexOutOfBoundsException e){
             Toast.makeText(this, "You have arrived", Toast.LENGTH_SHORT).show();
+            removeFade();
+
         }
 
+    }
+    private void removeFade(){
+        View fadeBackground = findViewById(R.id.fadeBackground);
+                    fadeBackground.setVisibility(View.GONE);
+            fadeBackground.animate().alpha(0.5f);
     }
 
     public void onResume(){
@@ -265,7 +279,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         if(id == R.id.stopTravel){
             Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
+            removeFade();
+
             handler.removeCallbacks(runnable);
+            DrawerLayout mDrawerLayout;
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
+            mDrawerLayout.closeDrawers();
         }
         return false;
     }
