@@ -85,7 +85,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         mapController.setZoom(13.5);
         final GeoPoint startPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(startPos);
-
+        currentPos = startPos;
         startMarker = new Marker(map);
         startMarker.setPosition(startPos);
         startMarker.setTextLabelBackgroundColor(backgroundColor);
@@ -102,7 +102,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                updateRoute(waypoints,roadManager,startPos,p,map, roadOverlay, road, startMarker);
+                updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
             @Override
