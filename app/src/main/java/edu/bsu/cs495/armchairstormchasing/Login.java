@@ -33,6 +33,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private ImageView profilePicture;
     private GoogleApiClient googleAPiClient;
     private static final int req_code = 9001;
+    private String currentFile;
 
 
     @Override
@@ -55,9 +56,14 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         new DownloadDataAsync(this).execute(fileUrl);
     }
 
+    //STOPPED HERE
+    public void testParse(){
+
+    }
+
     @Override
     public String onProcessFinish(String output){
-        return output;
+        currentFile = output;
     }
 
     @Override

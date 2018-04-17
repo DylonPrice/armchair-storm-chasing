@@ -54,7 +54,7 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "Folder");
         String name = null;
         String coordinates = null;
-        while (parser.next() != XmlPullParser.START_TAG) {
+        while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
@@ -70,6 +70,29 @@ public class XMLParser {
         }
 
         return new Folder(name, coordinates);
+    }
+
+    private String readLinearRing(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String coordinates = null;
+
+        while (parser.next() != XmlPullParser.END_TAG){
+            if (parser.getEventType() != XmlPullParser.START_TAG){
+                continue;
+            }
+            String entryName = parser.getName();
+            if (entryName.equals("coordinates")){
+                coordinates = readCoordinates(parser);
+            }
+        }
+
+        return coordinates;
+    }
+
+    private String readCoordinates(XmlPullParser parser) throws XmlPullParserException, IOException{
+        parser.require(XmlPullParser.START_TAG, ns, "coordinates");
+        String coordinates = readText(parser);
+        parser.require(XmlPullParser.END_TAG, ns, "coordinates");
+        return coordinates;
     }
 
     private String readName(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -89,7 +112,7 @@ public class XMLParser {
         return result;
     }
 
-    private void Skip(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
         if (parser.getEventType() != XmlPullParser.START_TAG){
             throw new IllegalStateException();
         }
