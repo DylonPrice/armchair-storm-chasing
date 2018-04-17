@@ -51,8 +51,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
+    private Handler handler;
+    private Runnable runnable;
     GeoPoint currentPos;
-    GeoPoint startPos;
     Marker startMarker;
     int currentPointOnRoute;
     int totalPointsOnRoute;
@@ -158,7 +159,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
     public void showTravelDialog(Road road){
         final Road newRoad = road;
-        AlertDialog travelDialog = new AlertDialog.Builder(MapActivity.this).create();
+        final AlertDialog travelDialog = new AlertDialog.Builder(MapActivity.this).create();
         travelDialog.setTitle("Begin Travel?");
         travelDialog.setMessage("Would you like to travel to this destination?");
         travelDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Yes",
@@ -169,7 +170,20 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                         updateCurrentLocation(newRoad);
                     }
                 });
-        travelDialog.show();
+        travelDialog.setButton(AlertDialog.BUTTON_POSITIVE, "No",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        Handler dialogHandler = new Handler();
+        dialogHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                travelDialog.show();
+            }
+        }, 500);
     }
 
     public void updateCurrentLocation(Road road){
@@ -181,16 +195,18 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             totalPointsOnRoute+=1;
         }
 
-        final Handler handler = new Handler();
         final double delay = (road.mDuration/routePoints.size()) * 1000;
 
-        handler.postDelayed(new Runnable() {
+        handler = new Handler();
+        runnable = new Runnable(){
             @Override
-            public void run() {
-                updateMarker();
-                handler.postDelayed(this, Double.valueOf(delay).longValue());
-            }
-        }, Double.valueOf(delay).longValue());
+                public void run() {
+                    updateMarker();
+                    handler.postDelayed(this, Double.valueOf(delay).longValue());
+        }
+    };
+
+        handler.postDelayed(runnable, Double.valueOf(delay).longValue());
     }
 
     private void updateMarker(){
@@ -218,6 +234,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
     }
+
     @Override
     public void onBackPressed() {
 
@@ -244,6 +261,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         if(id == R.id.changeStartingLocation){
             Intent intent = new Intent(this, CityMenuActivity.class);
             startActivity(intent);
+        }
+
+        if(id == R.id.stopTravel){
+            Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
+            handler.removeCallbacks(runnable);
         }
         return false;
     }
