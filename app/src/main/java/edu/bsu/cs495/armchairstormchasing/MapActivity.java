@@ -4,8 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.CountDownTimer;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -13,12 +14,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.os.StrictMode;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -30,7 +27,6 @@ import com.google.android.gms.common.api.Status;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadLeg;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -40,10 +36,8 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
+
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -62,6 +56,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     ArrayList<GeoPoint> routePoints = new ArrayList<>();
     Road road = new Road();
     MapView map;
+    boolean isTraveling = false;
 
     @Override public void onCreate(Bundle savedInstanceState) {
 
@@ -102,7 +97,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                updateRoute(waypoints,roadManager,startPos,p,map, roadOverlay, road, startMarker);
+                if (isTraveling == false){
+                    updateRoute(waypoints,roadManager,startPos,p,map, roadOverlay, road, startMarker);
+                }
                 return false;
             }
             @Override
@@ -170,6 +167,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
+                        isTraveling = true;
                         updateCurrentLocation(newRoad);
                     }
                 });
@@ -229,6 +227,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
         catch (IndexOutOfBoundsException e){
             Toast.makeText(this, "You have arrived", Toast.LENGTH_SHORT).show();
+            isTraveling = false;
             removeFade();
 
         }
@@ -280,7 +279,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         if(id == R.id.stopTravel){
             Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
             removeFade();
-
+            isTraveling = false;
             handler.removeCallbacks(runnable);
             DrawerLayout mDrawerLayout;
             mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
