@@ -1,6 +1,7 @@
 package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -50,6 +52,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
     GeoPoint currentPos;
+    GeoPoint startPos;
     Marker startMarker;
     int currentPointOnRoute;
     int totalPointsOnRoute;
@@ -77,11 +80,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(13.5);
-        final GeoPoint currentPos = new GeoPoint(startLat, startLon);
-        mapController.setCenter(currentPos);
+        final GeoPoint startPos = new GeoPoint(startLat, startLon);
+        mapController.setCenter(startPos);
 
         startMarker = new Marker(map);
-        startMarker.setPosition(new GeoPoint(startLat, startLon));
+        startMarker.setPosition(startPos);
         startMarker.setTextLabelBackgroundColor(backgroundColor);
         startMarker.setTextLabelFontSize(fontSizeDp);
         startMarker.setIcon(null);
@@ -96,8 +99,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-
-                updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
+                updateRoute(waypoints,roadManager,startPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
             @Override
@@ -142,9 +144,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     }
 
     public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
-        map.getOverlays().clear();
         waypoints.clear();
-
         waypoints.add(currentPos);
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
@@ -152,8 +152,24 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         startMarker.setTitle(road.getLengthDurationText(this, -1));
         map.getOverlays().add(roadOverlay);
         map.postInvalidate();
-        updateCurrentLocation(road);
 
+        showTravelDialog(road);
+    }
+
+    public void showTravelDialog(Road road){
+        final Road newRoad = road;
+        AlertDialog travelDialog = new AlertDialog.Builder(MapActivity.this).create();
+        travelDialog.setTitle("Begin Travel?");
+        travelDialog.setMessage("Would you like to travel to this destination?");
+        travelDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Yes",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        updateCurrentLocation(newRoad);
+                    }
+                });
+        travelDialog.show();
     }
 
     public void updateCurrentLocation(Road road){
