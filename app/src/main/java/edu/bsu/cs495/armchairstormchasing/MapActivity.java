@@ -1,15 +1,20 @@
 package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +39,9 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -44,6 +51,15 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
+    private Handler handler;
+    private Runnable runnable;
+    GeoPoint currentPos;
+    Marker startMarker;
+    int currentPointOnRoute;
+    int totalPointsOnRoute;
+    ArrayList<GeoPoint> routePoints = new ArrayList<>();
+    Road road = new Road();
+    MapView map;
 
     @Override public void onCreate(Bundle savedInstanceState) {
 
@@ -59,19 +75,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         Bundle b = getIntent().getExtras();
         double startLat = b.getDouble("startLat");
         double startLon = b.getDouble("startLon");
-        final MapView map = findViewById(R.id.map);
+        map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(13.5);
-        final GeoPoint currentPos = new GeoPoint(startLat, startLon);
-        mapController.setCenter(currentPos);
-        final Road road = new Road();
-        final Timer timer = new Timer();
+        final GeoPoint startPos = new GeoPoint(startLat, startLon);
+        mapController.setCenter(startPos);
 
-        final Marker startMarker = new Marker(map);
-        startMarker.setPosition(new GeoPoint(startLat, startLon));
+        startMarker = new Marker(map);
+        startMarker.setPosition(startPos);
         startMarker.setTextLabelBackgroundColor(backgroundColor);
         startMarker.setTextLabelFontSize(fontSizeDp);
         startMarker.setIcon(null);
@@ -86,14 +100,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                TextView latLong = findViewById(R.id.latLong);
-                latLong.setText(p.getLatitude() + " , " + p.getLongitude());
-                startMarker.setPosition(p);
-                updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
+                updateRoute(waypoints,roadManager,startPos,p,map, roadOverlay, road, startMarker);
                 return false;
             }
-
-
             @Override
             public boolean longPressHelper(GeoPoint p) {
                 return false;
@@ -137,23 +146,82 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
     public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
         waypoints.clear();
-        map.getOverlays().remove(roadOverlay);
         waypoints.add(currentPos);
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
         roadOverlay = roadManager.buildRoadOverlay(road);
-        startMarker.setTitle(road.getLengthDurationText(this,-1));
-        System.out.println();
-        System.out.println(roadOverlay.getPoints());
+        startMarker.setTitle(road.getLengthDurationText(this, -1));
         map.getOverlays().add(roadOverlay);
+        map.postInvalidate();
+
+        showTravelDialog(road);
     }
 
-    public void updateCurrentLocation(Road road, GeoPoint currentPos){
-        for (int i = 0; i < road.mLegs.size(); i++){
-            RoadLeg currentLeg = road.mLegs.get(i);
-            double legTime = currentLeg.mDuration;
-            double legLength = currentLeg.mLength;
-            double kps = legLength/legTime;
+    public void showTravelDialog(Road road){
+        final Road newRoad = road;
+        final AlertDialog travelDialog = new AlertDialog.Builder(MapActivity.this).create();
+        travelDialog.setTitle("Begin Travel?");
+        travelDialog.setMessage("Would you like to travel to this destination?");
+        travelDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Yes",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        updateCurrentLocation(newRoad);
+                    }
+                });
+        travelDialog.setButton(AlertDialog.BUTTON_POSITIVE, "No",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        Handler dialogHandler = new Handler();
+        dialogHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                travelDialog.show();
+            }
+        }, 500);
+    }
+
+    public void updateCurrentLocation(Road road){
+        totalPointsOnRoute = 0;
+        currentPointOnRoute = 0;
+        routePoints.clear();
+        for (int i = 0; i < road.mRouteHigh.size(); i++){
+            routePoints.add(road.mRouteHigh.get(i));
+            totalPointsOnRoute+=1;
+        }
+
+        final double delay = (road.mDuration/routePoints.size()) * 1000;
+
+        handler = new Handler();
+        runnable = new Runnable(){
+            @Override
+                public void run() {
+                    updateMarker();
+                    handler.postDelayed(this, Double.valueOf(delay).longValue());
+        }
+    };
+
+        handler.postDelayed(runnable, Double.valueOf(delay).longValue());
+    }
+
+    private void updateMarker(){
+        try{
+            currentPos = routePoints.get(currentPointOnRoute);
+            startMarker.setPosition(currentPos);
+            startMarker.setTextLabelBackgroundColor(backgroundColor);
+            startMarker.setTextLabelFontSize(fontSizeDp);
+            startMarker.setIcon(null);
+            map.getOverlays().add(startMarker);
+            map.postInvalidate();
+            currentPointOnRoute+=1;
+        }
+        catch (IndexOutOfBoundsException e){
+            Toast.makeText(this, "You have arrived", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -166,6 +234,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
     }
+
     @Override
     public void onBackPressed() {
 
@@ -192,6 +261,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         if(id == R.id.changeStartingLocation){
             Intent intent = new Intent(this, CityMenuActivity.class);
             startActivity(intent);
+        }
+
+        if(id == R.id.stopTravel){
+            Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
+            handler.removeCallbacks(runnable);
         }
         return false;
     }
