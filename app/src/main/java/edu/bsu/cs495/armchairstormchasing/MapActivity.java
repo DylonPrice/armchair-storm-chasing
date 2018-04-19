@@ -38,6 +38,9 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.net.URL;
+import java.io.File;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;

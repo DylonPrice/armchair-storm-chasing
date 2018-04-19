@@ -39,7 +39,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private GoogleSignInClient mGoogleSignInClient;
     private static final int req_code = 9001;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +48,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
     }
+
 
     @Override
     public void onClick(View view) {

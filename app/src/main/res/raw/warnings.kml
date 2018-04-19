@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+<Folder>
+<Folder id="SV">
+<name>NWS SVR Warnings</name>
+<description>NWS Active Warnings generated at 2018/03/29 21:17:02</description>
+<Style id="SV">
+<LabelStyle>
+<scale>0.7</scale>
+</LabelStyle>
+<LineStyle>
+<color>7fff0000</color>
+<width>3</width>
+</LineStyle>
+<PolyStyle>
+<color>7fff0000</color>
+</PolyStyle>
+<IconStyle>
+<scale>0.4</scale>
+<Icon><href>http://www.weather.gov/images/crh/svr.gif</href></Icon>
+</IconStyle>
+</Style>
+</Folder>
+<Folder id="TO">
+<name>NWS TOR Warnings</name>
+<description>NWS Active Warnings generated at 2018/03/29 21:17:02</description>
+<Style id="TO">
+<LabelStyle>
+<scale>0.7</scale>
+</LabelStyle>
+<LineStyle>
+<color>7f0000ff</color>
+<width>3</width>
+</LineStyle>
+<PolyStyle>
+<color>7f0000ff</color>
+</PolyStyle>
+<IconStyle>
+<scale>0.4</scale>
+<Icon><href>http://www.weather.gov/images/crh/tor.gif</href></Icon>
+</IconStyle>
+</Style>
+</Folder>
+<Folder id="FF">
+<name>NWS FFW Warnings</name>
+<description>NWS Active Warnings generated at 2018/03/29 21:17:02</description>
+<Style id="FF">
+<LabelStyle>
+<scale>0.7</scale>
+</LabelStyle>
+<LineStyle>
+<color>7f00ff00</color>
+<width>3</width>
+</LineStyle>
+<PolyStyle>
+<color>7f00ff00</color>
+</PolyStyle>
+<IconStyle>
+<scale>0.4</scale>
+<Icon><href>http://www.weather.gov/images/crh/ff.gif</href></Icon>
+</IconStyle>
+</Style>
+</Folder>
+<Folder id="MA">
+<name>NWS SMW Warnings</name>
+<description>NWS Active Warnings generated at 2018/03/29 21:17:02</description>
+<Style id="MA">
+<LabelStyle>
+<scale>0.7</scale>
+</LabelStyle>
+<LineStyle>
+<color>7f0066ff</color>
+<width>3</width>
+</LineStyle>
+<PolyStyle>
+<color>7f0066ff</color>
+</PolyStyle>
+<IconStyle>
+<scale>0.4</scale>
+<Icon><href>http://www.weather.gov/images/crh/sw.gif</href></Icon>
+</IconStyle>
+</Style>
+<Placemark>
+<styleUrl>#MA</styleUrl>
+<name>
+KLIX.MA.Warning.21:04Z
+</name>
+<description>
+<pre>
+NWS Warning</pre>
+</description>
+<visibility>1</visibility>
+<open>0</open>
+<MultiGeometry>
+<LineString><extrude>1</extrude>
+<tessellate>1</tessellate>
+<altitudeMode>clampToGround</altitudeMode>
+<coordinates>-90.980003356933594,28.569999694824222 -90.300003051757812,29.260000228881836 -90.239997863769531,29.090000152587891 -90.069999694824219,29.170000076293949 -90.160003662109375,29.370000839233395 -90.099998474121094,29.29999923706055 -90.010002136230469,29.530000686645504 -89.970001220703125,29.54000091552734 -89.970001220703125,29.479999542236332 -89.980003356933608,29.469999313354496 -90,29.489999771118168 -89.980003356933608,29.45999908447266 -89.5,29.729999542236328 -89.5,29.719999313354492 -89.379997253417969,29.930000305175781 -88.849998474121094,30.040000915527344 -89.510002136230469,29.149999618530277 -90.169998168945312,28.790000915527344 -90.980003356933594,28.569999694824222</coordinates></LineString>
+<Point>
+<coordinates>-90.980003356933594,28.569999694824222</coordinates>
+</Point>
+<Polygon>
+<extrude>0</extrude>
+<altitudeMode>clampToGround</altitudeMode>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>-90.980003356933594,28.569999694824222 -90.300003051757812,29.260000228881836 -90.239997863769531,29.090000152587891 -90.069999694824219,29.170000076293949 -90.160003662109375,29.370000839233395 -90.099998474121094,29.29999923706055 -90.010002136230469,29.530000686645504 -89.970001220703125,29.54000091552734 -89.970001220703125,29.479999542236332 -89.980003356933608,29.469999313354496 -90,29.489999771118168 -89.980003356933608,29.45999908447266 -89.5,29.729999542236328 -89.5,29.719999313354492 -89.379997253417969,29.930000305175781 -88.849998474121094,30.040000915527344 -89.510002136230469,29.149999618530277 -90.169998168945312,28.790000915527344 -90.980003356933594,28.569999694824222</coordinates></LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Folder>
+</Folder>
+</kml>
