@@ -27,7 +27,7 @@ public class XMLParser {
     }
 
     private List readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
-        List folders = new ArrayList();
+        ArrayList<Folder> folders = new ArrayList<>();
         Boolean isFirstFolder = true;
 
         parser.require(XmlPullParser.START_TAG, ns, "kml");
@@ -56,6 +56,7 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "Folder");
         String name = null;
         String coordinates = null;
+        ArrayList<String> polygons = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -66,12 +67,13 @@ public class XMLParser {
             }
             else if (entryName.equals("Placemark")){
                 coordinates = readPlacemark(parser);
+                polygons.add(coordinates);
             } else {
                 skip(parser);
             }
         }
 
-        return new Folder(name, coordinates);
+        return new Folder(name, polygons);
     }
 
     private String readPlacemark(XmlPullParser parser) throws XmlPullParserException, IOException {
