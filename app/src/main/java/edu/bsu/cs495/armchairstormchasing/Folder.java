@@ -1,11 +1,13 @@
 package edu.bsu.cs495.armchairstormchasing;
 
+import java.util.ArrayList;
+
 public class Folder {
     public final String name;
-    public final String coordinates;
+    public final ArrayList<String> polygons;
 
-    public Folder(String name, String coordinates){
+    public Folder(String name, ArrayList<String> polygons){
         this.name = name;
-        this.coordinates = coordinates;
+        this.polygons = polygons;
     }
 }
