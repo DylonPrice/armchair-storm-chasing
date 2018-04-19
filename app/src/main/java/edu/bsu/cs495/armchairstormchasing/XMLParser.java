@@ -1,9 +1,5 @@
 package edu.bsu.cs495.armchairstormchasing;
 
-/**
- * Created by DylonPrice on 4/12/18.
- */
-
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -71,7 +67,6 @@ public class XMLParser {
             }
             else if (entryName.equals("Placemark")){
                 coordinates = readPlacemark(parser);
-                coordinates = readLinearRing(parser);
             } else {
                 skip(parser);
             }
@@ -142,9 +137,18 @@ public class XMLParser {
 
         while (parser.next() != XmlPullParser.END_TAG){
             if (parser.getEventType() != XmlPullParser.START_TAG){
-
+                continue;
+            }
+            String entryName = parser.getName();
+            if (entryName.equals("LinearRing")){
+                coordinates = readLinearRing(parser);
+            }
+            else {
+                skip(parser);
             }
         }
+
+        return coordinates;
     }
 
 
