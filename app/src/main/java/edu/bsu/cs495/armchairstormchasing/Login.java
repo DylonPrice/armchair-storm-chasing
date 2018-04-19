@@ -23,6 +23,8 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.InputStream;
+import java.io.File;
+import java.util.List;
 
 public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener, IAsyncResponse {
 
@@ -39,9 +41,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // DOWNLOAD TEST
-        testDownload();
-        // DOWNLOAD TEST COMPLETE
+        // PARSING TEST
+        testParse();
+        // PARSING TEST COMPLETE
         setContentView(R.layout.activity_login);
         signInBtn = findViewById(R.id.btn_login);
         signInBtn.setOnClickListener(this);
@@ -57,13 +59,24 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     }
 
     //STOPPED HERE
-    public void testParse(){
+    public List testParse(){
+        XMLParser parser = new XMLParser();
+        InputStream inputStream = getResources().openRawResource(getResources().getIdentifier("warnings", "raw", getPackageName()));
+        List result = null;
+        try{
+            result = parser.Parse(inputStream);
+        } catch(Exception e) {
+
+        }
+
+        return result;
 
     }
 
     @Override
     public String onProcessFinish(String output){
         currentFile = output;
+        return "";
     }
 
     @Override

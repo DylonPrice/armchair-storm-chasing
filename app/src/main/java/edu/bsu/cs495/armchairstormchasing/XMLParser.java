@@ -33,6 +33,7 @@ public class XMLParser {
 
     private List readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
         List folders = new ArrayList();
+        Boolean isFirstFolder = true;
 
         parser.require(XmlPullParser.START_TAG, ns, "kml");
         while (parser.next() != XmlPullParser.END_TAG){
@@ -40,9 +41,15 @@ public class XMLParser {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals("Folder")) {
+            if (name.equals("Folder") && isFirstFolder) {
+                parser.nextTag();
+                isFirstFolder = false;
+                name = parser.getName();
+            }
+            if (name.equals("Folder") && !isFirstFolder){
                 folders.add(readFolder(parser));
-            } else {
+            }
+            else {
                 skip(parser);
             }
         }
@@ -62,7 +69,8 @@ public class XMLParser {
             if (entryName.equals("name")) {
                 name = readName(parser);
             }
-            else if (entryName.equals("LinearRing")){
+            else if (entryName.equals("Placemark")){
+                coordinates = readPlacemark(parser);
                 coordinates = readLinearRing(parser);
             } else {
                 skip(parser);
@@ -71,6 +79,74 @@ public class XMLParser {
 
         return new Folder(name, coordinates);
     }
+
+    private String readPlacemark(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String coordinates = null;
+
+        while (parser.next() != XmlPullParser.END_TAG){
+            if (parser.getEventType() != XmlPullParser.START_TAG){
+                continue;
+            }
+            String entryName = parser.getName();
+            if (entryName.equals("MultiGeometry")){
+                coordinates = readMultiGeometry(parser);
+            }
+            else {
+                skip(parser);
+            }
+        }
+
+        return coordinates;
+    }
+
+    private String readMultiGeometry(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String coordinates = null;
+
+        while (parser.next() != XmlPullParser.END_TAG){
+            if (parser.getEventType() != XmlPullParser.START_TAG){
+                continue;
+            }
+            String entryName = parser.getName();
+            if (entryName.equals("Polygon")){
+                coordinates = readPolygon(parser);
+            }
+            else {
+                skip(parser);
+            }
+        }
+
+        return coordinates;
+    }
+
+    private String readPolygon(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String coordinates = null;
+
+        while (parser.next() != XmlPullParser.END_TAG){
+            if (parser.getEventType() != XmlPullParser.START_TAG){
+                continue;
+            }
+            String entryName = parser.getName();
+            if (entryName.equals("outerBoundaryIs")){
+                coordinates = readOuterBoundary(parser);
+            }
+            else {
+                skip(parser);
+            }
+        }
+
+        return coordinates;
+    }
+
+    private String readOuterBoundary(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String coordinates = null;
+
+        while (parser.next() != XmlPullParser.END_TAG){
+            if (parser.getEventType() != XmlPullParser.START_TAG){
+
+            }
+        }
+    }
+
 
     private String readLinearRing(XmlPullParser parser) throws XmlPullParserException, IOException {
         String coordinates = null;
@@ -82,6 +158,9 @@ public class XMLParser {
             String entryName = parser.getName();
             if (entryName.equals("coordinates")){
                 coordinates = readCoordinates(parser);
+            }
+            else{
+                skip(parser);
             }
         }
 
