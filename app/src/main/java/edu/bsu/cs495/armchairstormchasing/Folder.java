@@ -1,9 +1,5 @@
 package edu.bsu.cs495.armchairstormchasing;
 
-/**
- * Created by DylonPrice on 4/12/18.
- */
-
 public class Folder {
     public final String name;
     public final String coordinates;

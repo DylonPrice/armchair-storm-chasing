@@ -12,7 +12,6 @@ import java.util.List;
 
 public class XMLParser {
 
-
     private static final String ns = null;
 
     public List Parse(InputStream in) throws XmlPullParserException, IOException {
