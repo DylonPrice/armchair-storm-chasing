@@ -92,15 +92,15 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         final ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
         final Polyline roadOverlay = new Polyline();
 
-
-
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 if (isTraveling == false){
-                    updateRoute(waypoints,roadManager,startPos,p,map, roadOverlay, road, startMarker);
+                    updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
                 }
-
+                if (isTraveling == true){
+                    showTravelText();
+                }
                 return false;
             }
             @Override
@@ -114,6 +114,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
 
+    }
+
+    public void showTravelText(){
+        Toast.makeText(this, "Traveling", Toast.LENGTH_SHORT).show();
     }
 
     @Override
