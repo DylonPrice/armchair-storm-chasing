@@ -5,9 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="edu.bsu.cs495.armchairstormchasing.Login">
+    tools:context="edu.bsu.cs495.armchairstormchasing.Login"
+    >
 
-        <TextView
+    <ImageView
+        android:id="@+id/logoDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/textTitle"
+        android:src="@mipmap/ic_launcher_round"/>
+
+    <TextView
+            android:id="@+id/textTitle"
             android:layout_width="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_height="wrap_content"

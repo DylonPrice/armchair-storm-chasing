@@ -1,18 +1,32 @@
 package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadLeg;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -22,6 +36,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
+
 import java.util.ArrayList;
 import java.util.Timer;
 import java.net.URL;
@@ -30,12 +45,24 @@ import java.io.File;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
+    private GoogleApiClient mGoogleApiClient;
+    private Handler handler;
+    private Runnable runnable;
+    GeoPoint currentPos;
+    Marker startMarker;
+    int currentPointOnRoute;
+    int totalPointsOnRoute;
+    ArrayList<GeoPoint> routePoints = new ArrayList<>();
+    Road road = new Road();
+    MapView map;
+    boolean isTraveling = false;
 
     @Override public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         Context ctx = getApplicationContext();
         //important! set your user agent to prevent getting banned from the osm servers
@@ -45,20 +72,20 @@ public class MapActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-
-        final MapView map = findViewById(R.id.map);
+        Bundle b = getIntent().getExtras();
+        double startLat = b.getDouble("startLat");
+        double startLon = b.getDouble("startLon");
+        map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
-        mapController.setZoom(5);
-        final GeoPoint currentPos = new GeoPoint(37.0902, -95.7129);
-        mapController.setCenter(currentPos);
-        final Road road = new Road();
-        final Timer timer = new Timer();
-
-        final Marker startMarker = new Marker(map);
-        startMarker.setPosition(new GeoPoint(38.0, -95.0));
+        mapController.setZoom(13.5);
+        final GeoPoint startPos = new GeoPoint(startLat, startLon);
+        mapController.setCenter(startPos);
+        currentPos = startPos;
+        startMarker = new Marker(map);
+        startMarker.setPosition(startPos);
         startMarker.setTextLabelBackgroundColor(backgroundColor);
         startMarker.setTextLabelFontSize(fontSizeDp);
         startMarker.setIcon(null);
@@ -71,20 +98,19 @@ public class MapActivity extends AppCompatActivity {
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                TextView latLong = findViewById(R.id.latLong);
-                latLong.setText(p.getLatitude() + " , " + p.getLongitude());
-                startMarker.setPosition(p);
-                updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
+                if (isTraveling == false){
+                    updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
+                }
+                if (isTraveling == true){
+                    showTravelText();
+                }
                 return false;
             }
-
-
             @Override
             public boolean longPressHelper(GeoPoint p) {
                 return false;
             }
         };
-
 
         setUpNavDrawer();
 
@@ -93,12 +119,28 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
+    public void showTravelText(){
+        Toast.makeText(this, "Traveling", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onStart(){
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
     private void setUpNavDrawer() {
          mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
          mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
          mDrawerLayout.addDrawerListener(mToggle);
          mToggle.syncState();
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -111,26 +153,98 @@ public class MapActivity extends AppCompatActivity {
 
     public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
         waypoints.clear();
-        map.getOverlays().remove(roadOverlay);
         waypoints.add(currentPos);
         waypoints.add(p);
         road = roadManager.getRoad(waypoints);
-        roadOverlay = roadManager.buildRoadOverlay(road);
-        startMarker.setTitle(road.getLengthDurationText(this,-1));
-        System.out.println();
-        System.out.println(roadOverlay.getPoints());
+        roadOverlay.setPoints(road.mRouteHigh);
+        roadOverlay.setColor(Color.BLUE);
+        startMarker.setTitle(road.getLengthDurationText(this, -1));
         map.getOverlays().add(roadOverlay);
+        map.postInvalidate();
+
+        showTravelDialog(road);
     }
 
-    public void updateCurrentLocation(Road road, GeoPoint currentPos){
-        for (int i = 0; i < road.mLegs.size(); i++){
-            RoadLeg currentLeg = road.mLegs.get(i);
-            double legTime = currentLeg.mDuration;
-            double legLength = currentLeg.mLength;
-            double kps = legLength/legTime;
+    public void showTravelDialog(Road road){
+        final Road newRoad = road;
+        final AlertDialog travelDialog = new AlertDialog.Builder(MapActivity.this).create();
+        travelDialog.setTitle("Begin Travel?");
+        travelDialog.setMessage("Would you like to travel to this destination?");
+        travelDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Yes",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        isTraveling = true;
+                        updateCurrentLocation(newRoad);
+                    }
+                });
+        travelDialog.setButton(AlertDialog.BUTTON_POSITIVE, "No",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        Handler dialogHandler = new Handler();
+        dialogHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                travelDialog.show();
+                map.setEnabled(false);
+            }
+        }, 500);
+    }
+
+    public void updateCurrentLocation(Road road){
+        totalPointsOnRoute = 0;
+        currentPointOnRoute = 0;
+        routePoints.clear();
+        for (int i = 0; i < road.mRouteHigh.size(); i++){
+            routePoints.add(road.mRouteHigh.get(i));
+            totalPointsOnRoute+=1;
+        }
+
+        final double delay = (road.mDuration/routePoints.size()) * 1000;
+        View fadeBackground = findViewById(R.id.fadeBackground);
+        fadeBackground.setVisibility(View.VISIBLE);
+        fadeBackground.animate().alpha(0.5f);
+
+        handler = new Handler();
+        runnable = new Runnable(){
+            @Override
+                public void run() {
+                    updateMarker();
+                    handler.postDelayed(this, Double.valueOf(delay).longValue());
+        }
+    };
+
+        handler.postDelayed(runnable, Double.valueOf(delay).longValue());
+    }
+
+    private void updateMarker(){
+        try{
+            currentPos = routePoints.get(currentPointOnRoute);
+            startMarker.setPosition(currentPos);
+            startMarker.setTextLabelBackgroundColor(backgroundColor);
+            startMarker.setTextLabelFontSize(fontSizeDp);
+            startMarker.setIcon(null);
+            map.getOverlays().add(startMarker);
+            map.postInvalidate();
+            currentPointOnRoute+=1;
+        }
+        catch (IndexOutOfBoundsException e){
+            Toast.makeText(this, "You have arrived", Toast.LENGTH_SHORT).show();
+            isTraveling = false;
+            removeFade();
 
         }
 
+    }
+    private void removeFade(){
+        View fadeBackground = findViewById(R.id.fadeBackground);
+                    fadeBackground.setVisibility(View.GONE);
+            fadeBackground.animate().alpha(0.5f);
     }
 
     public void onResume(){
@@ -141,8 +255,45 @@ public class MapActivity extends AppCompatActivity {
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
     }
+
     @Override
     public void onBackPressed() {
 
     }
+
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item){
+        int id = item.getItemId();
+
+        if(id == R.id.Logout){
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                            Toast.makeText(getApplicationContext(), "Logged Out", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getApplicationContext(), Login.class);
+                            startActivity(intent);
+                        }
+                    }
+            );
+        }
+  
+        if(id == R.id.changeStartingLocation){
+            Intent intent = new Intent(this, CityMenuActivity.class);
+            startActivity(intent);
+        }
+
+        if(id == R.id.stopTravel){
+            Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
+            removeFade();
+            isTraveling = false;
+            handler.removeCallbacks(runnable);
+            DrawerLayout mDrawerLayout;
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
+            mDrawerLayout.closeDrawers();
+        }
+        return false;
+    }
+
 }
