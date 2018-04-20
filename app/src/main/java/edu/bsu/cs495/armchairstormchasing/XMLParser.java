@@ -2,6 +2,7 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.util.Xml;
 
+import org.osmdroid.util.GeoPoint;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -56,7 +57,7 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "Folder");
         String name = null;
         String coordinates = null;
-        ArrayList<String> polygons = new ArrayList<>();
+        ArrayList<ArrayList<GeoPoint>> polygons = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -67,7 +68,8 @@ public class XMLParser {
             }
             else if (entryName.equals("Placemark")){
                 coordinates = readPlacemark(parser);
-                polygons.add(coordinates);
+                ArrayList<GeoPoint> polygon = createPolygon(coordinates);
+                polygons.add(polygon);
             } else {
                 skip(parser);
             }
@@ -191,6 +193,20 @@ public class XMLParser {
         if (parser.next() == XmlPullParser.TEXT) {
             result = parser.getText();
             parser.nextTag();
+        }
+
+        return result;
+    }
+
+    private ArrayList<GeoPoint> createPolygon(String polygon){
+        String[] polygonList = polygon.split(" ");
+        ArrayList<GeoPoint> result = new ArrayList<>();
+        for (int i = 0; i < polygonList.length; i++){
+            String[] stringPoint = polygonList[i].split(",");
+            double latitude = Double.parseDouble(stringPoint[0]);
+            double longitude = Double.parseDouble(stringPoint[1]);
+            GeoPoint point = new GeoPoint(latitude, longitude);
+            result.add(point);
         }
 
         return result;
