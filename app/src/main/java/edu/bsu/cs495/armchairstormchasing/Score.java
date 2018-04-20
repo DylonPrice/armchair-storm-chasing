@@ -21,21 +21,43 @@ public class Score {
         return totalScore;
     }
 
-    public void calculateScore(ArrayList<Folder> folders, int n, GeoPoint point){
+    public void calculateScore(ArrayList<Folder> folders, GeoPoint currentPoint){
         for (int i = 0; i < folders.size(); i++){
-            ArrayList<ArrayList<GeoPoint>> polygons = folders.get(i).polygons;
+            Folder currentFolder = folders.get(i);
+            ArrayList<ArrayList<GeoPoint>> polygons = currentFolder.polygons;
+            for (int j = 0; j < polygons.size(); j++){
+                ArrayList<GeoPoint> currentPolygon = polygons.get(i);
+                if (isInside(currentPolygon, currentPoint)){
+                    if (currentFolder.name.equals("0")){
+                        currentDayScore += 1;
+                    }
+                    if (currentFolder.name.equals("1")){
+                        currentDayScore += 2;
+                    }
+                    if (currentFolder.name.equals("2")){
+                        currentDayScore += 3;
+                    }
+                }
+            }
         }
     }
 
-    public boolean isInside(ArrayList<GeoPoint> polygon, int n, GeoPoint currentPoint){
-        Double infinity = Double.POSITIVE_INFINITY;
-        int count = 0;
-        if (n < 3){
-            return false;
-        }
-        GeoPoint extremePoint = new GeoPoint(infinity, currentPoint.getLongitude());
+    public boolean isInside(ArrayList<GeoPoint> polygon, GeoPoint currentPoint){
+        boolean result = false;
+        int j = polygon.size() - 1;
+        for (int i = 0; i < polygon.size(); i++){
+            if (polygon.get(i).getLongitude() < currentPoint.getLongitude() && polygon.get(j).getLongitude() >= currentPoint.getLongitude()
+                    || polygon.get(j).getLongitude() < currentPoint.getLongitude() && polygon.get(i).getLongitude() >= currentPoint.getLongitude()){
+                if ((polygon.get(i).getLatitude() + (currentPoint.getLongitude() - polygon.get(i).getLongitude()) / (polygon.get(j).getLongitude() - polygon.get(i).getLongitude())
+                        * (polygon.get(j).getLatitude() - polygon.get(i).getLatitude()) < currentPoint.getLatitude())){
+                    result = !result;
+                }
+            }
 
-        return true;
+            j = i;
+        }
+
+        return result;
     }
 
 }
