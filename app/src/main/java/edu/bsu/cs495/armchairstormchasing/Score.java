@@ -42,7 +42,7 @@ public class Score {
         }
     }
 
-    public boolean isInside(ArrayList<GeoPoint> polygon, GeoPoint currentPoint){
+    private boolean isInside(ArrayList<GeoPoint> polygon, GeoPoint currentPoint){
         boolean result = false;
         int j = polygon.size() - 1;
         for (int i = 0; i < polygon.size(); i++){
