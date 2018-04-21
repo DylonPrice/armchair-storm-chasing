@@ -37,6 +37,8 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.text.ParseException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.net.URL;
@@ -98,19 +100,43 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                if (isTraveling == false){
-                    updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
+                if (isTraveling == false) {
+                    updateRoute(waypoints, roadManager, currentPos, p, map, roadOverlay, road, startMarker);
                 }
-                if (isTraveling == true){
+                if (isTraveling == true) {
                     showTravelText();
                 }
                 return false;
             }
+
             @Override
             public boolean longPressHelper(GeoPoint p) {
                 return false;
             }
         };
+
+        final Handler timeHandler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (isTimeBetweenAllowedTime() == false){
+                        Intent endOfDayIntent = new Intent(MapActivity.this, End_Of_Day_Screen.class);
+                        Bundle endOfDayBundle = new Bundle();
+                        endOfDayBundle.putDouble("currentPosLat", currentPos.getLatitude());
+                        endOfDayBundle.putDouble("currentPosLong", currentPos.getLongitude());
+                        endOfDayBundle.putInt("totalScore", 0);
+                        endOfDayBundle.putInt("dailyScore", 0);
+                        endOfDayIntent.putExtras(endOfDayBundle);
+                        startActivity(endOfDayIntent);
+                    };
+                    timeHandler.postDelayed(this, 30000);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        timeHandler.postDelayed(runnable, 30000);
 
         setUpNavDrawer();
 
@@ -294,6 +320,31 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             mDrawerLayout.closeDrawers();
         }
         return false;
+    }
+    private boolean isTimeBetweenAllowedTime() throws ParseException {
+
+        LocalTime startTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startTime = LocalTime.of(13, 0);
+        }
+
+        LocalTime endTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            endTime = LocalTime.of(22, 0);
+        }
+
+        LocalTime current = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            current = LocalTime.now();
+        }
+
+        boolean isCurrentBetweenStartAndEnd =
+                false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            isCurrentBetweenStartAndEnd = current.isAfter(startTime) && current.isBefore(endTime);
+        }
+
+        return isCurrentBetweenStartAndEnd;
     }
 
 }

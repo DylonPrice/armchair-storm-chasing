@@ -11,8 +11,8 @@ public class End_Of_Day_Screen extends AppCompatActivity {
 
     Double currentPosLat;
     Double currentPosLong;
-    Double totalScore;
-    Double dailyScore;
+    int totalScore;
+    int dailyScore = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,13 +21,13 @@ public class End_Of_Day_Screen extends AppCompatActivity {
         if (extras != null) {
             currentPosLat = extras.getDouble("currentPosLat");
             currentPosLong = extras.getDouble("currentPosLong");
-            totalScore = extras.getDouble("totalScore");
-            dailyScore = extras.getDouble("dailyScore");
+            totalScore = extras.getInt("totalScore");
+            dailyScore = extras.getInt("dailyScore");
         }
-        TextView dayScoreText = findViewById(R.id.txt_dayScoreText);
-        dayScoreText.setText(dailyScore.toString());
-        TextView totalScoreText = findViewById(R.id.txt_totalScoreText);
-        totalScoreText.setText(totalScore.toString());
+        TextView dayScoreText = (TextView)findViewById(R.id.txt_dayScoreText);
+        dayScoreText.setText(String.valueOf(dailyScore));
+        TextView totalScoreText = (TextView)findViewById(R.id.txt_totalScoreText);
+        totalScoreText.setText(String.valueOf(totalScore));
 
         Button clickNextDayButton = (Button) findViewById(R.id.btn_nextDay);
         clickNextDayButton.setOnClickListener( new View.OnClickListener() {
