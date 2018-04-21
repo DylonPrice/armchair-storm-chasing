@@ -15,7 +15,7 @@ public class XMLParser {
 
     private static final String ns = null;
 
-    public List Parse(InputStream in) throws XmlPullParserException, IOException {
+    public ArrayList<Folder> Parse(InputStream in) throws XmlPullParserException, IOException {
         try{
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -27,7 +27,7 @@ public class XMLParser {
         }
     }
 
-    private List readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private ArrayList<Folder> readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
         ArrayList<Folder> folders = new ArrayList<>();
         Boolean isFirstFolder = true;
 
