@@ -23,15 +23,15 @@
     <Placemark>
         <name>Shape</name>
         <description>Shape</description>
-        <Polygon><outerBoundaryIs><LinearRing><coordinates>-98.26171875,45.58328975600631 -100.986328125,41.40977583200956 -92.8125,41.70572851523752 -95.44921875,46.22545288226939 -98.26171875,45.58328975600631</coordinates></LinearRing></outerBoundaryIs></Polygon><styleUrl>#transparent50Poly</styleUrl></Placemark>
+        <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-98.26171875,45.58328975600631 -100.986328125,41.40977583200956 -92.8125,41.70572851523752 -95.44921875,46.22545288226939 -98.26171875,45.58328975600631</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry><styleUrl>#transparent50Poly</styleUrl></Placemark>
     <Placemark>
         <name>Shape</name>
         <description>Shape</description>
-        <Polygon><outerBoundaryIs><LinearRing><coordinates>-82.79296875,34.23451236236987 -85.078125,32.32427558887655 -81.298828125,28.459033019728043 -79.98046875,28.459033019728043 -80.771484375,33.870415550941836 -82.79296875,34.23451236236987</coordinates></LinearRing></outerBoundaryIs></Polygon><styleUrl>#transparent50Poly</styleUrl></Placemark>
+        <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-82.79296875,34.23451236236987 -85.078125,32.32427558887655 -81.298828125,28.459033019728043 -79.98046875,28.459033019728043 -80.771484375,33.870415550941836 -82.79296875,34.23451236236987</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry><styleUrl>#transparent50Poly</styleUrl></Placemark>
     <Placemark>
         <name>Shape</name>
         <description>Shape</description>
-        <Polygon><outerBoundaryIs><LinearRing><coordinates>-90.615234375,37.37015718405753 -82.96875,41.17865397233167 -77.34375,41.64007838467894 -75.9375,37.37015718405753 -89.296875,35.96022296929667 -90.615234375,37.37015718405753</coordinates></LinearRing></outerBoundaryIs></Polygon><styleUrl>#transparent50Poly</styleUrl></Placemark>
+        <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-90.615234375,37.37015718405753 -82.96875,41.17865397233167 -77.34375,41.64007838467894 -75.9375,37.37015718405753 -89.296875,35.96022296929667 -90.615234375,37.37015718405753</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry><styleUrl>#transparent50Poly</styleUrl></Placemark>
 </Folder>
 <Folder id="TO">
 <name>NWS TOR Warnings</name>
@@ -55,11 +55,11 @@
     <Placemark>
         <name>Shape</name>
         <description>Shape</description>
-        <Polygon><outerBoundaryIs><LinearRing><coordinates>-82.44140625,40.91351257612757 -76.9921875,38.06539235133249 -80.771484375,37.439974052270564 -82.44140625,40.91351257612757</coordinates></LinearRing></outerBoundaryIs></Polygon><styleUrl>#transparent50Poly</styleUrl></Placemark>
+        <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-82.44140625,40.91351257612757 -76.9921875,38.06539235133249 -80.771484375,37.439974052270564 -82.44140625,40.91351257612757</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry><styleUrl>#transparent50Poly</styleUrl></Placemark>
     <Placemark>
         <name>Shape</name>
         <description>Shape</description>
-        <Polygon><outerBoundaryIs><LinearRing><coordinates>-101.42578125,38.272688535980976 -95.361328125,38.06539235133249 -98.349609375,37.23032838760387 -100.107421875,37.439974052270564 -101.42578125,38.272688535980976</coordinates></LinearRing></outerBoundaryIs></Polygon><styleUrl>#transparent50Poly</styleUrl></Placemark>
+        <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-101.42578125,38.272688535980976 -95.361328125,38.06539235133249 -98.349609375,37.23032838760387 -100.107421875,37.439974052270564 -101.42578125,38.272688535980976</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry><styleUrl>#transparent50Poly</styleUrl></Placemark>
 </Folder>
 <Folder id="FF">
 <name>NWS FFW Warnings</name>
@@ -83,7 +83,7 @@
     <Placemark>
         <name>Shape</name>
         <description>Shape</description>
-        <Polygon><outerBoundaryIs><LinearRing><coordinates>-123.837890625,41.70572851523752 -120.05859375,41.9022770409637 -119.794921875,39.16414104768743 -114.2578125,34.59704151614417 -116.982421875,32.91648534731439 -121.81640625,36.94989178681327 -124.27734375,40.313043208880906 -123.837890625,41.70572851523752</coordinates></LinearRing></outerBoundaryIs></Polygon><styleUrl>#transparent50Poly</styleUrl></Placemark>
+        <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-123.837890625,41.70572851523752 -120.05859375,41.9022770409637 -119.794921875,39.16414104768743 -114.2578125,34.59704151614417 -116.982421875,32.91648534731439 -121.81640625,36.94989178681327 -124.27734375,40.313043208880906 -123.837890625,41.70572851523752</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry><styleUrl>#transparent50Poly</styleUrl></Placemark>
 </Folder>
 <Folder id="MA">
 <name>NWS SMW Warnings</name>
