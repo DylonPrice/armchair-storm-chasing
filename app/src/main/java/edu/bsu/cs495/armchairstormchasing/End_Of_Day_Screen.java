@@ -26,8 +26,7 @@ public class End_Of_Day_Screen extends AppCompatActivity {
         }
         TextView dayScoreText = findViewById(R.id.txt_dayScoreText);
         dayScoreText.setText(dailyScore.toString());
-        totalScore += dailyScore;
-        TextView totalScoreText = findViewById(R.id.latLong);
+        TextView totalScoreText = findViewById(R.id.txt_totalScoreText);
         totalScoreText.setText(totalScore.toString());
 
         Button clickNextDayButton = (Button) findViewById(R.id.btn_nextDay);
