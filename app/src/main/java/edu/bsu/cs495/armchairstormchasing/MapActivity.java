@@ -3,6 +3,7 @@ package edu.bsu.cs495.armchairstormchasing;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,6 +61,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     Road road = new Road();
     MapView map;
     boolean isTraveling = false;
+    int dailyScore;
+    int totalScore;
 
     @Override public void onCreate(Bundle savedInstanceState) {
 
@@ -296,4 +299,16 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         return false;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        float floatPosLat = (float)currentPos.getLatitude();
+        float floatPosLong = (float)currentPos.getLongitude();
+        SharedPreferences.Editor editor = getSharedPreferences("ascData", MODE_PRIVATE).edit();
+        editor.putFloat("currentPositionLat", floatPosLat);
+        editor.putFloat("currentPositionLong", floatPosLong);
+        editor.putInt("totalScore", totalScore);
+        editor.putInt("dailyScore", dailyScore);
+        editor.commit();
+    }
 }

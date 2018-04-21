@@ -2,6 +2,7 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -19,6 +20,7 @@ public class CityMenuActivity extends Activity{
     ListView list_view;
     List<String> cities = new ArrayList<>();
     ArrayAdapter<String> adapter;
+    int totalScore = 0;
 
     @Override
     protected void onCreate (Bundle savedInstanceState){
@@ -306,4 +308,13 @@ public class CityMenuActivity extends Activity{
     protected void onStart(){
         super.onStart();
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor = getSharedPreferences("ascData", MODE_PRIVATE).edit();
+        editor.putInt("totalScore", totalScore);
+        editor.commit();
+    }
 }
+

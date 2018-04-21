@@ -1,6 +1,7 @@
 package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -38,6 +39,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private ImageView profilePicture;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int req_code = 9001;
+    boolean validTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,25 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         signInBtn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
+
+        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
+        float savedLat = (saved.getFloat("currentPositionLat",0));
+        float savedLong = (saved.getFloat("currentPositionLong",0));
+        if (savedLat != 0 && validTime == true){
+            Intent intent = new Intent(Login.this, MapActivity.class);
+            Bundle b = new Bundle();
+            b.putDouble("startLat", savedLat);
+            b.putDouble("startLon", savedLong);
+            intent.putExtras(b);
+            startActivity(intent);
+        }
+        else if (validTime == false){
+            Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
+            startActivity(intent);
+        }
+
+
+
     }
 
 
