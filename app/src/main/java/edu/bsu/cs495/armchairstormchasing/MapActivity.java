@@ -121,6 +121,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             public void run() {
                 try {
                     if (isTimeBetweenAllowedTime() == false){
+                        timeHandler.removeCallbacks(runnable);
                         Intent endOfDayIntent = new Intent(MapActivity.this, End_Of_Day_Screen.class);
                         Bundle endOfDayBundle = new Bundle();
                         endOfDayBundle.putDouble("currentPosLat", currentPos.getLatitude());
@@ -129,14 +130,16 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                         endOfDayBundle.putInt("dailyScore", 0);
                         endOfDayIntent.putExtras(endOfDayBundle);
                         startActivity(endOfDayIntent);
-                    };
-                    timeHandler.postDelayed(this, 30000);
+                    }
+                    else{
+                        timeHandler.postDelayed(this, 10000);
+                    }
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
         };
-        timeHandler.postDelayed(runnable, 30000);
+        timeHandler.postDelayed(runnable, 10000);
 
         setUpNavDrawer();
 
@@ -335,6 +338,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         LocalTime current = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            //current = LocalTime.now();
             current = LocalTime.now();
         }
 
