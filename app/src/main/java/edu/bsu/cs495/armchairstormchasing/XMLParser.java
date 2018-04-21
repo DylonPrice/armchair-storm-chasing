@@ -203,8 +203,8 @@ public class XMLParser {
         ArrayList<GeoPoint> result = new ArrayList<>();
         for (int i = 0; i < polygonList.length; i++){
             String[] stringPoint = polygonList[i].split(",");
-            double latitude = Double.parseDouble(stringPoint[0]);
-            double longitude = Double.parseDouble(stringPoint[1]);
+            double latitude = Double.parseDouble(stringPoint[1]);
+            double longitude = Double.parseDouble(stringPoint[0]);
             GeoPoint point = new GeoPoint(latitude, longitude);
             result.add(point);
         }
