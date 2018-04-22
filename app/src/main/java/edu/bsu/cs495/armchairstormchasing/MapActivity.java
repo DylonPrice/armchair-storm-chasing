@@ -385,20 +385,20 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     }
             );
         }
-  
-        if(id == R.id.changeStartingLocation){
-            Intent intent = new Intent(this, CityMenuActivity.class);
-            startActivity(intent);
-        }
 
         if(id == R.id.stopTravel){
-            Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
-            removeFade();
-            isTraveling = false;
-            handler.removeCallbacks(runnable);
-            DrawerLayout mDrawerLayout;
-            mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
-            mDrawerLayout.closeDrawers();
+            if (isTraveling){
+                Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
+                removeFade();
+                isTraveling = false;
+                handler.removeCallbacks(runnable);
+                DrawerLayout mDrawerLayout;
+                mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
+                mDrawerLayout.closeDrawers();
+            }
+            else {
+
+            }
         }
         return false;
     }
