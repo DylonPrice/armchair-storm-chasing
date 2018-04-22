@@ -43,6 +43,8 @@ import org.osmdroid.views.overlay.Polyline;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.net.URL;
@@ -124,6 +126,32 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 return false;
             }
         };
+
+        final Handler timeHandler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (isTimeBetweenAllowedTime() == false){
+                        timeHandler.removeCallbacks(runnable);
+                        Intent endOfDayIntent = new Intent(MapActivity.this, End_Of_Day_Screen.class);
+                        Bundle endOfDayBundle = new Bundle();
+                        endOfDayBundle.putDouble("currentPosLat", currentPos.getLatitude());
+                        endOfDayBundle.putDouble("currentPosLong", currentPos.getLongitude());
+                        endOfDayBundle.putInt("totalScore", 0);
+                        endOfDayBundle.putInt("dailyScore", 0);
+                        endOfDayIntent.putExtras(endOfDayBundle);
+                        startActivity(endOfDayIntent);
+                    }
+                    else{
+                        timeHandler.postDelayed(this, 10000);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        timeHandler.postDelayed(runnable, 10000);
 
         setUpNavDrawer();
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
@@ -391,5 +419,31 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         }
         return result;
+    }
+    private boolean isTimeBetweenAllowedTime() throws ParseException {
+
+        LocalTime startTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startTime = LocalTime.of(13, 0);
+        }
+
+        LocalTime endTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            endTime = LocalTime.of(22, 0);
+        }
+
+        LocalTime current = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            //current = LocalTime.now();
+            current = LocalTime.now();
+        }
+
+        boolean isCurrentBetweenStartAndEnd =
+                false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            isCurrentBetweenStartAndEnd = current.isAfter(startTime) && current.isBefore(endTime);
+        }
+
+        return isCurrentBetweenStartAndEnd;
     }
 }

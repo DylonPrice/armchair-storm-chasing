@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".MapActivity" />
         <activity android:name=".CityMenuActivity" />
+        <activity android:name=".End_Of_Day_Screen"></activity>
     </application>
 
 </manifest>
