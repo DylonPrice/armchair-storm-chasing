@@ -28,6 +28,8 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.Task;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -49,7 +51,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
     }
-
 
     @Override
     public void onClick(View view) {
