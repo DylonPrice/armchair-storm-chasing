@@ -90,9 +90,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
             startActivity(intent);
         }
-        else if(validTime == true && today != savedDate){
-            toCityMenu();
-        }
 
     }
     private boolean isTimeBetweenAllowedTime() throws ParseException {

@@ -24,15 +24,25 @@ public class CityMenuActivity extends Activity{
     ListView list_view;
     List<String> cities = new ArrayList<>();
     ArrayAdapter<String> adapter;
-    int totalScore = 0;
 
     LocalDateTime current = LocalDateTime.now();
     int today = current.getDayOfYear();
+    int totalScore;
 
     @Override
     protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_menu);
+
+        // Get saved total score
+        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
+        if (saved.getInt("totalScore", 0) != 0){
+            totalScore = saved.getInt("totalScore", 0);
+        }
+        else {
+            totalScore = 0;
+        }
+
         list_view = findViewById(R.id.city_list_view);
         TextView textView = new TextView(getBaseContext());
         textView.setText("Select a Starting Location");

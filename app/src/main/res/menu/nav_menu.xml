@@ -8,19 +8,9 @@
     </item>
 
     <item
-        android:id="@+id/changeDestination"
-        android:title="Change Destination">
-
-    </item>
-
-    <item
         android:id="@+id/stopTravel"
         android:title="Stop Travel">
 
     </item>
-
-    <item
-        android:id="@+id/changeStartingLocation"
-        android:title="Change Starting Location"></item>
 
 </menu>
