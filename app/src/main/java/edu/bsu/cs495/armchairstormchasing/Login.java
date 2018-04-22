@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +32,8 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.Task;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -41,6 +45,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private static final int req_code = 9001;
     boolean validTime;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,10 +55,14 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
 
+        LocalDateTime current = LocalDateTime.now();
+        int today = current.getDayOfYear();
+
         SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
         float savedLat = (saved.getFloat("currentPositionLat",0));
         float savedLong = (saved.getFloat("currentPositionLong",0));
-        if (savedLat != 0 && validTime == true){
+        int savedDate = (saved.getInt("date",0));
+        if (savedLat != 0 && validTime == true && today == savedDate){
             Intent intent = new Intent(Login.this, MapActivity.class);
             Bundle b = new Bundle();
             b.putDouble("startLat", savedLat);
@@ -64,6 +73,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         else if (validTime == false){
             Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
             startActivity(intent);
+        }
+        else if(validTime == true && today != savedDate){
+            toCityMenu();
         }
 
 
