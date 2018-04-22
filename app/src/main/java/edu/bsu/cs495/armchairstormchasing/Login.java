@@ -1,10 +1,13 @@
 package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +34,9 @@ import com.google.android.gms.tasks.Task;
 import org.osmdroid.util.GeoPoint;
 
 import java.io.InputStream;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
@@ -41,7 +47,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private ImageView profilePicture;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int req_code = 9001;
+    boolean validTime;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +58,67 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         signInBtn.setOnClickListener(this);
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
+
+        LocalDateTime current = LocalDateTime.now();
+        int today = current.getDayOfYear();
+        try {
+            if(isTimeBetweenAllowedTime() == false){
+                validTime = false;
+            }
+            else {
+                validTime = true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
+        float savedLat = (saved.getFloat("currentPositionLat",0));
+        float savedLong = (saved.getFloat("currentPositionLong",0));
+        int savedDate = (saved.getInt("date",0));
+
+        if (savedLat != 0 && validTime == true && today == savedDate){
+            Intent intent = new Intent(Login.this, MapActivity.class);
+            Bundle b = new Bundle();
+            b.putDouble("startLat", savedLat);
+            b.putDouble("startLon", savedLong);
+            intent.putExtras(b);
+            startActivity(intent);
+        }
+        else if (validTime == false){
+            Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
+            startActivity(intent);
+        }
+        else if(validTime == true && today != savedDate){
+            toCityMenu();
+        }
+
+    }
+    private boolean isTimeBetweenAllowedTime() throws ParseException {
+
+        LocalTime startTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startTime = LocalTime.of(13, 0);
+        }
+
+        LocalTime endTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            endTime = LocalTime.of(22, 0);
+        }
+
+        LocalTime current = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            current = LocalTime.now();
+        }
+
+        boolean isCurrentBetweenStartAndEnd =
+                false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            isCurrentBetweenStartAndEnd = current.isAfter(startTime) && current.isBefore(endTime);
+        }
+
+        return isCurrentBetweenStartAndEnd;
     }
 
     @Override
@@ -127,4 +196,5 @@ class LoadProfileImage extends AsyncTask<String, Void, Bitmap> {
             bitmapImage.setImageBitmap(resized);
         }
     }
+
 }

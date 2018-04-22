@@ -3,12 +3,15 @@ package edu.bsu.cs495.armchairstormchasing;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -43,6 +46,9 @@ import org.osmdroid.views.overlay.Polyline;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.net.URL;
@@ -72,7 +78,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     ArrayList<ArrayList<GeoPoint>> thunderStormWarning = new ArrayList<>();
     ArrayList<ArrayList<GeoPoint>> tornadoWarning = new ArrayList<>();
     ArrayList<ArrayList<GeoPoint>> floodWarning = new ArrayList<>();
+    Score score;
+    int today;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -83,7 +92,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         setContentView(R.layout.activity_map);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
+        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
+        int totalScore = (saved.getInt("totalScore",0));
+        int dailyScore = (saved.getInt("dailyScore",0));
+        score = new Score(dailyScore, totalScore);
+        LocalDateTime current = LocalDateTime.now();
+        today = current.getDayOfYear();
         Bundle b = getIntent().getExtras();
         double startLat = b.getDouble("startLat");
         double startLon = b.getDouble("startLon");
@@ -124,6 +138,33 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 return false;
             }
         };
+
+        final Handler timeHandler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (isTimeBetweenAllowedTime() == false){
+                        timeHandler.removeCallbacks(runnable);
+                        Intent endOfDayIntent = new Intent(MapActivity.this, End_Of_Day_Screen.class);
+                        Bundle endOfDayBundle = new Bundle();
+                        endOfDayBundle.putDouble("currentPosLat", currentPos.getLatitude());
+                        endOfDayBundle.putDouble("currentPosLong", currentPos.getLongitude());
+                        endOfDayBundle.putInt("totalScore", 0);
+                        endOfDayBundle.putInt("dailyScore", 0);
+                        endOfDayIntent.putExtras(endOfDayBundle);
+                        startActivity(endOfDayIntent);
+                    }
+                    else{
+                        timeHandler.postDelayed(this, 10000);
+
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        timeHandler.postDelayed(runnable, 10000);
 
         setUpNavDrawer();
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
@@ -391,5 +432,44 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         }
         return result;
+    }
+    private boolean isTimeBetweenAllowedTime() throws ParseException {
+
+        LocalTime startTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startTime = LocalTime.of(13, 0);
+        }
+
+        LocalTime endTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            endTime = LocalTime.of(22, 0);
+        }
+
+        LocalTime current = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            //current = LocalTime.now();
+            current = LocalTime.now();
+        }
+
+        boolean isCurrentBetweenStartAndEnd =
+                false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            isCurrentBetweenStartAndEnd = current.isAfter(startTime) && current.isBefore(endTime);
+        }
+
+        return isCurrentBetweenStartAndEnd;
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        float floatPosLat = (float)currentPos.getLatitude();
+        float floatPosLong = (float)currentPos.getLongitude();
+        SharedPreferences.Editor editor = getSharedPreferences("ascData", MODE_PRIVATE).edit();
+        editor.putFloat("currentPositionLat", floatPosLat);
+        editor.putFloat("currentPositionLong", floatPosLong);
+        editor.putInt("totalScore", score.getTotalScore());
+        editor.putInt("dailyScore", score.getCurrentDayScore());
+        editor.putInt("date", today);
+        editor.commit();
     }
 }

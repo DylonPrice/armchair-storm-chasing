@@ -2,7 +2,10 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,14 +14,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class CityMenuActivity extends Activity{
 
     ListView list_view;
     List<String> cities = new ArrayList<>();
     ArrayAdapter<String> adapter;
+    int totalScore = 0;
+
+    LocalDateTime current = LocalDateTime.now();
+    int today = current.getDayOfYear();
 
     @Override
     protected void onCreate (Bundle savedInstanceState){
@@ -305,5 +314,13 @@ public class CityMenuActivity extends Activity{
     @Override
     protected void onStart(){
         super.onStart();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor = getSharedPreferences("ascData", MODE_PRIVATE).edit();
+        editor.putInt("totalScore", totalScore);
+        editor.putInt("date", today);
+        editor.commit();
     }
 }
