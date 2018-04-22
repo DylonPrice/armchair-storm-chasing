@@ -2,6 +2,9 @@ package edu.bsu.cs495.armchairstormchasing;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class End_Of_Day_Screen extends AppCompatActivity {
@@ -18,11 +22,18 @@ public class End_Of_Day_Screen extends AppCompatActivity {
     Double currentPosLong;
     int totalScore;
     int dailyScore;
+    int today;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocalDateTime current = LocalDateTime.now();
+        today = current.getDayOfYear();
         setContentView(R.layout.activity_end__of__day__screen2);
+        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
+        dailyScore = (saved.getInt("dailyScore",0));
+        totalScore = (saved.getInt("totalScore",0));
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             currentPosLat = extras.getDouble("currentPosLat");
@@ -102,5 +113,13 @@ public class End_Of_Day_Screen extends AppCompatActivity {
         }
 
         return isCurrentBetweenStartAndEnd;
+    }
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor = getSharedPreferences("ascData", MODE_PRIVATE).edit();
+        editor.putInt("totalScore", totalScore);
+        editor.putInt("dailyScore", dailyScore);
+        editor.putInt("date", today);
+        editor.commit();
     }
 }
