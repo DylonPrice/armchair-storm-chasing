@@ -48,6 +48,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private GoogleSignInClient mGoogleSignInClient;
     private static final int req_code = 9001;
     boolean validTime;
+    int today;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -60,7 +61,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
 
         LocalDateTime current = LocalDateTime.now();
-        int today = current.getDayOfYear();
+        today = current.getDayOfYear();
         try {
             if(isTimeBetweenAllowedTime() == false){
                 validTime = false;
@@ -73,23 +74,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         }
 
 
-        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
-        float savedLat = (saved.getFloat("currentPositionLat",0));
-        float savedLong = (saved.getFloat("currentPositionLong",0));
-        int savedDate = (saved.getInt("date",0));
 
-        if (savedLat != 0 && validTime == true && today == savedDate){
-            Intent intent = new Intent(Login.this, MapActivity.class);
-            Bundle b = new Bundle();
-            b.putDouble("startLat", savedLat);
-            b.putDouble("startLon", savedLong);
-            intent.putExtras(b);
-            startActivity(intent);
-        }
-        else if (validTime == false){
-            Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
-            startActivity(intent);
-        }
 
     }
     private boolean isTimeBetweenAllowedTime() throws ParseException {
@@ -148,7 +133,25 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     }
 
     private void updateUI(){
-        toCityMenu();
+        SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
+        float savedLat = (saved.getFloat("currentPositionLat",0));
+        float savedLong = (saved.getFloat("currentPositionLong",0));
+        int savedDate = (saved.getInt("date",0));
+        if (savedLat != 0 && validTime == true && today == savedDate){
+            Intent intent = new Intent(Login.this, MapActivity.class);
+            Bundle b = new Bundle();
+            b.putDouble("startLat", savedLat);
+            b.putDouble("startLon", savedLong);
+            intent.putExtras(b);
+            startActivity(intent);
+        }
+        else if (validTime == false){
+            Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
+            startActivity(intent);
+        }
+        else {
+            toCityMenu();
+        }
     }
 
     public void toCityMenu(){
