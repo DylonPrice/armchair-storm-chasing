@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -211,6 +212,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     // ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
                     showAllPolygons(folders);
                     score.calculateScore(folders, currentPos);
+                    TextView dayScoreText = (TextView)findViewById(R.id.latLong);
+                    dayScoreText.setText("Day Score: " + String.valueOf(score.getCurrentDayScore()));
                     System.out.println(score.getCurrentDayScore() + " SCORES HERE " + score.getTotalScore());
                 } catch (Exception e) {
                     e.printStackTrace();
