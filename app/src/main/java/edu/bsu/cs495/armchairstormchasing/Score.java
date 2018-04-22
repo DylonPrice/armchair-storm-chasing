@@ -22,24 +22,30 @@ public class Score {
     }
 
     public void calculateScore(ArrayList<Folder> folders, GeoPoint currentPoint){
+        int scoreIncrease = 0;
         for (int i = 0; i < folders.size(); i++){
             Folder currentFolder = folders.get(i);
             ArrayList<ArrayList<GeoPoint>> polygons = currentFolder.polygons;
             for (int j = 0; j < polygons.size(); j++){
                 ArrayList<GeoPoint> currentPolygon = polygons.get(i);
                 if (isInside(currentPolygon, currentPoint)){
-                    if (currentFolder.name.equals("0")){
-                        currentDayScore += 1;
+                    if (currentFolder.name.equals("NWS SVR Warnings")){
+                        scoreIncrease += 10;
                     }
-                    if (currentFolder.name.equals("1")){
-                        currentDayScore += 2;
+                    if (currentFolder.name.equals("NWS TOR Warnings")){
+                        scoreIncrease += 15;
                     }
-                    if (currentFolder.name.equals("2")){
-                        currentDayScore += 3;
+                    if (currentFolder.name.equals("NWS FFW Warnings")){
+                        scoreIncrease += 5;
                     }
                 }
             }
+
+            currentDayScore += scoreIncrease;
+            totalScore += scoreIncrease;
         }
+
+
     }
 
     private boolean isInside(ArrayList<GeoPoint> polygon, GeoPoint currentPoint){
