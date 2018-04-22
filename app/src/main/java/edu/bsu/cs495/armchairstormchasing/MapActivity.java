@@ -50,10 +50,13 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.net.URL;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
@@ -64,7 +67,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private ActionBarDrawerToggle mToggle;
     private GoogleApiClient mGoogleApiClient;
     private Handler handler;
-    private Runnable runnable;
+    private Runnable timeRunnable;
+    private Runnable scoreRunnable;
+    private Runnable downloadRunnable;
+    private Runnable updateLocationRunnable;
     GeoPoint currentPos;
     Marker startMarker;
     int currentPointOnRoute;
@@ -73,15 +79,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     Road road = new Road();
     MapView map;
     boolean isTraveling = false;
-    int thunderColor = Color.argb(150, 215, 215, 35);
-    int tornadoColor = Color.argb(150, 200, 5,5);
-    int floodColor = Color.argb(150, 5,5, 155);
+    int thunderColor = Color.argb(100, 215, 215, 35);
+    int tornadoColor = Color.argb(100, 200, 5,5);
+    int floodColor = Color.argb(100, 5,5, 155);
     ArrayList<ArrayList<GeoPoint>> thunderStormWarning = new ArrayList<>();
     ArrayList<ArrayList<GeoPoint>> tornadoWarning = new ArrayList<>();
     ArrayList<ArrayList<GeoPoint>> floodWarning = new ArrayList<>();
+    ArrayList<Polygon> displayedPolygons = new ArrayList<>();
     Score score;
     int today;
     String filePath;
+    final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -148,11 +156,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                if (isTraveling == false){
+                if (!isTraveling){
                     updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
-                    showAllPolygons();
+                    //showAllPolygons();
                 }
-                if (isTraveling == true){
+                if (isTraveling){
                     showTravelText();
                 }
                 return false;
@@ -164,12 +172,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         };
 
         final Handler timeHandler = new Handler();
-        runnable = new Runnable() {
+        timeRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (isTimeBetweenAllowedTime() == false){
-                        timeHandler.removeCallbacks(runnable);
+                    if (!isTimeBetweenAllowedTime()){
+                        timeHandler.removeCallbacks(timeRunnable);
                         Intent endOfDayIntent = new Intent(MapActivity.this, End_Of_Day_Screen.class);
                         Bundle endOfDayBundle = new Bundle();
                         endOfDayBundle.putDouble("currentPosLat", currentPos.getLatitude());
@@ -188,41 +196,46 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 }
             }
         };
-        timeHandler.postDelayed(runnable, 10000);
+        timeHandler.postDelayed(timeRunnable, 10000);
 
         setUpNavDrawer();
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
 
         final Handler scoreHandler = new Handler();
-        runnable = new Runnable() {
+        scoreRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    scoreHandler.postDelayed(this, 60000);
                     ArrayList<Folder> folders = testParse();
                     // ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
+                    showAllPolygons(folders);
                     score.calculateScore(folders, currentPos);
+                    System.out.println(score.getCurrentDayScore() + " SCORES HERE " + score.getTotalScore());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
-        scoreHandler.postDelayed(runnable, 60000);
+        scoreHandler.postDelayed(scoreRunnable, 60000);
 
         final Handler downloadHandler = new Handler();
-        runnable = new Runnable() {
+        downloadRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    downloadHandler.postDelayed(this, 300000);
                     asyncDownload.execute(fileUrl);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
-        downloadHandler.postDelayed(runnable, 300000);
+        downloadHandler.postDelayed(downloadRunnable, 300000);
+
+        // Run runnables
+        executor.execute(timeRunnable);
+        executor.execute(scoreRunnable);
+        executor.execute(downloadRunnable);
 
     }
 
@@ -318,15 +331,16 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         fadeBackground.animate().alpha(0.5f);
 
         handler = new Handler();
-        runnable = new Runnable(){
+        updateLocationRunnable = new Runnable(){
             @Override
                 public void run() {
                     updateMarker();
-                    handler.postDelayed(this, Double.valueOf(delay).longValue());
+                     handler.postDelayed(this, Double.valueOf(delay).longValue());
         }
     };
 
-        handler.postDelayed(runnable, Double.valueOf(delay).longValue());
+        //handler.postDelayed(updateLocationRunnable, Double.valueOf(delay).longValue());
+        executor.execute(updateLocationRunnable);
     }
 
     private void updateMarker(){
@@ -391,7 +405,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
                 removeFade();
                 isTraveling = false;
-                handler.removeCallbacks(runnable);
+                handler.removeCallbacks(updateLocationRunnable);
                 DrawerLayout mDrawerLayout;
                 mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
                 mDrawerLayout.closeDrawers();
@@ -403,10 +417,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         return false;
     }
 
-    public void showAllPolygons(){
-        emptyWarningLists();
+    public void showAllPolygons(ArrayList<Folder> folders){
         removeAllPolygons();
-        getPolygons(testParse());
+        emptyWarningLists();
+        getPolygons(folders);
         for(int i =0; i < thunderStormWarning.size(); i ++){
             displayPolygon(thunderStormWarning.get(i), thunderColor);
         }
@@ -416,20 +430,19 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         for(int i =0; i < floodWarning.size(); i ++){
             displayPolygon(floodWarning.get(i),floodColor);
         }
-
-
     }
 
     public void emptyWarningLists(){
         thunderStormWarning.clear();
         tornadoWarning.clear();
         floodWarning.clear();
+        displayedPolygons.clear();
     }
 
 
-    public void getPolygons(ArrayList<Folder> polygonLists){
-        for(int i =0; i < polygonLists.size(); i ++) {
-            Folder currentFolder = polygonLists.get(i);
+    public void getPolygons(ArrayList<Folder> folders){
+        for(int i =0; i < folders.size(); i ++) {
+            Folder currentFolder = folders.get(i);
             ArrayList<ArrayList<GeoPoint>> newPolygons = currentFolder.polygons;
             for (int j = 0; j <newPolygons.size(); j++){
                 ArrayList<GeoPoint> currentPolygon = newPolygons.get(j);
@@ -444,8 +457,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 if (currentFolder.name.equals("NWS FFW Warnings")){
                     floodWarning.add(currentPolygon);
                 }
-
-
             }
         }
     }
@@ -454,25 +465,14 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         Polygon polygon= new Polygon();
         polygon.setFillColor(warningColor);
         polygon.setPoints(geoPoints);
+        displayedPolygons.add(polygon);
         map.getOverlayManager().add(polygon);
-
     }
 
     public void removeAllPolygons(){
-        for(int i = 0; i < thunderStormWarning.size(); i++){
-            Polygon polygon = new Polygon();
-            polygon.setPoints(thunderStormWarning.get(i));
-            map.getOverlayManager().remove(polygon);
-        }
-        for(int i = 0; i < tornadoWarning.size(); i++){
-            Polygon polygon = new Polygon();
-            polygon.setPoints(tornadoWarning.get(i));
-            map.getOverlayManager().remove(polygon);
-        }
-        for(int i = 0; i < floodWarning.size(); i++){
-            Polygon polygon = new Polygon();
-            polygon.setPoints(floodWarning.get(i));
-            map.getOverlayManager().remove(polygon);
+        for (Polygon p : displayedPolygons){
+            boolean test = map.getOverlayManager().remove(p);
+            System.out.println(test);
         }
     }
 

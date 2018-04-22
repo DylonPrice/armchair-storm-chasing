@@ -27,7 +27,7 @@ public class Score {
             Folder currentFolder = folders.get(i);
             ArrayList<ArrayList<GeoPoint>> polygons = currentFolder.polygons;
             for (int j = 0; j < polygons.size(); j++){
-                ArrayList<GeoPoint> currentPolygon = polygons.get(i);
+                ArrayList<GeoPoint> currentPolygon = polygons.get(j);
                 if (isInside(currentPolygon, currentPoint)){
                     if (currentFolder.name.equals("NWS SVR Warnings")){
                         scoreIncrease += 10;
