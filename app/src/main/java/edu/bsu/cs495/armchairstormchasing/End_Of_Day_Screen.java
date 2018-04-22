@@ -32,8 +32,10 @@ public class End_Of_Day_Screen extends AppCompatActivity {
         today = current.getDayOfYear();
         setContentView(R.layout.activity_end__of__day__screen2);
         SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
-        dailyScore = (saved.getInt("dailyScore",0));
-        totalScore = (saved.getInt("totalScore",0));
+        if (saved.getInt("dailyScore", 0) != 0){
+            dailyScore = (saved.getInt("dailyScore",0));
+            totalScore = (saved.getInt("totalScore",0));
+        }
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             currentPosLat = extras.getDouble("currentPosLat");

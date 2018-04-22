@@ -53,11 +53,12 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.net.URL;
 import java.io.File;
+import java.io.FileInputStream;
 
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor;
 import static org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.fontSizeDp;
 
-public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, IAsyncResponse {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
@@ -80,33 +81,50 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     ArrayList<ArrayList<GeoPoint>> floodWarning = new ArrayList<>();
     Score score;
     int today;
+    String filePath;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         Context ctx = getApplicationContext();
         //important! set your user agent to prevent getting banned from the osm servers
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         setContentView(R.layout.activity_map);
+
+        // Set strict mode
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        // Load info from Shared Preferences
         SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
-        int totalScore = (saved.getInt("totalScore",0));
-        int dailyScore = (saved.getInt("dailyScore",0));
-        score = new Score(dailyScore, totalScore);
+        if (saved.getInt("totalScore", 0) != 0){
+            int totalScore = (saved.getInt("totalScore",0));
+            int dailyScore = (saved.getInt("dailyScore",0));
+            score = new Score(totalScore, dailyScore);
+        }
+        else {
+            score = new Score(0, 0);
+        }
+
+        // Get current date
         LocalDateTime current = LocalDateTime.now();
         today = current.getDayOfYear();
+
+        // Set start lat/long
         Bundle b = getIntent().getExtras();
         double startLat = b.getDouble("startLat");
         double startLon = b.getDouble("startLon");
+
+        // Build map
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(13.5);
+
+        // Initialize starting position
         final GeoPoint startPos = new GeoPoint(startLat, startLon);
         mapController.setCenter(startPos);
         currentPos = startPos;
@@ -117,9 +135,15 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         startMarker.setIcon(null);
         map.getOverlays().add(startMarker);
 
+        // Set roadmanager information
         final RoadManager roadManager = new OSRMRoadManager(this);
         final ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
         final Polyline roadOverlay = new Polyline();
+
+        // Set delegate and url for data download
+        final DownloadDataAsync asyncDownload = new DownloadDataAsync(this);
+        asyncDownload.delegate = this;
+        final String fileUrl = "https://www.weather.gov/source/crh/shapefiles/warnings.kml";
 
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
@@ -150,8 +174,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                         Bundle endOfDayBundle = new Bundle();
                         endOfDayBundle.putDouble("currentPosLat", currentPos.getLatitude());
                         endOfDayBundle.putDouble("currentPosLong", currentPos.getLongitude());
-                        endOfDayBundle.putInt("totalScore", 0);
-                        endOfDayBundle.putInt("dailyScore", 0);
+                        endOfDayBundle.putInt("totalScore", score.getTotalScore());
+                        endOfDayBundle.putInt("dailyScore", score.getCurrentDayScore());
                         endOfDayIntent.putExtras(endOfDayBundle);
                         startActivity(endOfDayIntent);
                     }
@@ -169,6 +193,36 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         setUpNavDrawer();
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
+
+        final Handler scoreHandler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    scoreHandler.postDelayed(this, 60000);
+                    ArrayList<Folder> folders = testParse();
+                    // ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
+                    score.calculateScore(folders, currentPos);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        scoreHandler.postDelayed(runnable, 60000);
+
+        final Handler downloadHandler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    downloadHandler.postDelayed(this, 300000);
+                    asyncDownload.execute(fileUrl);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        downloadHandler.postDelayed(runnable, 300000);
 
     }
 
@@ -433,6 +487,22 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
         return result;
     }
+
+    public ArrayList<Folder> parseData(String filepath){
+        XMLParser parser = new XMLParser();
+        File file = new File(filepath);
+        ArrayList<Folder> result = null;
+        try {
+            InputStream inputStream = new FileInputStream(file);
+            result = parser.Parse(inputStream);
+            inputStream.close();
+        } catch(Exception e) {
+
+        }
+
+        return result;
+    }
+
     private boolean isTimeBetweenAllowedTime() throws ParseException {
 
         LocalTime startTime = null;
@@ -447,7 +517,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         LocalTime current = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            //current = LocalTime.now();
             current = LocalTime.now();
         }
 
@@ -459,6 +528,13 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         return isCurrentBetweenStartAndEnd;
     }
+
+    @Override
+    public String onProcessFinish(String output){
+        filePath = output;
+        return null;
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
