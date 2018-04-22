@@ -35,8 +35,10 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -62,6 +64,13 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     Road road = new Road();
     MapView map;
     boolean isTraveling = false;
+    int thunderColor = Color.argb(150, 215, 215, 35);
+    int tornadoColor = Color.argb(150, 200, 5,5);
+    int floodColor = Color.argb(150, 5,5, 155);
+    ArrayList<ArrayList<GeoPoint>> thunderStormWarning = new ArrayList<>();
+    ArrayList<ArrayList<GeoPoint>> tornadoWarning = new ArrayList<>();
+    ArrayList<ArrayList<GeoPoint>> floodWarning = new ArrayList<>();
+
 
     @Override public void onCreate(Bundle savedInstanceState) {
 
@@ -102,6 +111,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 if (isTraveling == false) {
                     updateRoute(waypoints, roadManager, currentPos, p, map, roadOverlay, road, startMarker);
+                    showAllPolygons();
                 }
                 if (isTraveling == true) {
                     showTravelText();
@@ -323,6 +333,90 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             mDrawerLayout.closeDrawers();
         }
         return false;
+    }
+    public void showAllPolygons(){
+        emptyWarningLists();
+        removeAllPolygons();
+        getPolygons(testParse());
+        for(int i =0; i < thunderStormWarning.size(); i ++){
+            displayPolygon(thunderStormWarning.get(i), thunderColor);
+        }
+        for(int i =0; i < tornadoWarning.size(); i ++){
+            displayPolygon(tornadoWarning.get(i), tornadoColor);
+        }
+        for(int i =0; i < floodWarning.size(); i ++){
+            displayPolygon(floodWarning.get(i),floodColor);
+        }
+
+
+    }
+
+    public void emptyWarningLists(){
+        thunderStormWarning.clear();
+        tornadoWarning.clear();
+        floodWarning.clear();
+    }
+
+
+    public void getPolygons(ArrayList<Folder> polygonLists){
+        for(int i =0; i < polygonLists.size(); i ++) {
+            Folder currentFolder = polygonLists.get(i);
+            ArrayList<ArrayList<GeoPoint>> newPolygons = currentFolder.polygons;
+            for (int j = 0; j <newPolygons.size(); j++){
+                ArrayList<GeoPoint> currentPolygon = newPolygons.get(j);
+                if (currentFolder.name.equals("NWS SVR Warnings")){
+                    thunderStormWarning.add(currentPolygon);
+                }
+
+                if (currentFolder.name.equals("NWS TOR Warnings")){
+                    tornadoWarning.add(currentPolygon);
+                }
+
+                if (currentFolder.name.equals("NWS FFW Warnings")){
+                    floodWarning.add(currentPolygon);
+                }
+
+
+            }
+        }
+    }
+
+    public void displayPolygon(ArrayList<GeoPoint> geoPoints, int warningColor){
+        Polygon polygon= new Polygon();
+        polygon.setFillColor(warningColor);
+        polygon.setPoints(geoPoints);
+        map.getOverlayManager().add(polygon);
+
+    }
+
+    public void removeAllPolygons(){
+        for(int i = 0; i < thunderStormWarning.size(); i++){
+            Polygon polygon = new Polygon();
+            polygon.setPoints(thunderStormWarning.get(i));
+            map.getOverlayManager().remove(polygon);
+        }
+        for(int i = 0; i < tornadoWarning.size(); i++){
+            Polygon polygon = new Polygon();
+            polygon.setPoints(tornadoWarning.get(i));
+            map.getOverlayManager().remove(polygon);
+        }
+        for(int i = 0; i < floodWarning.size(); i++){
+            Polygon polygon = new Polygon();
+            polygon.setPoints(floodWarning.get(i));
+            map.getOverlayManager().remove(polygon);
+        }
+    }
+
+    public ArrayList<Folder> testParse(){
+        XMLParser parser = new XMLParser();
+        InputStream inputStream = getResources().openRawResource(getResources().getIdentifier("warnings", "raw", getPackageName()));
+        ArrayList<Folder> result = null;
+        try{
+            result = parser.Parse(inputStream);
+        }catch(Exception e) {
+
+        }
+        return result;
     }
     private boolean isTimeBetweenAllowedTime() throws ParseException {
 
