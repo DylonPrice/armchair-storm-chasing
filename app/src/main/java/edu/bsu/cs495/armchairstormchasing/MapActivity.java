@@ -514,7 +514,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         LocalTime endTime = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            endTime = LocalTime.of(22, 0);
+            endTime = LocalTime.of(23, 0);
         }
 
         LocalTime current = null;

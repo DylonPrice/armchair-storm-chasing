@@ -74,7 +74,7 @@ public class End_Of_Day_Screen extends AppCompatActivity {
             else{
                 final AlertDialog alertDialog = new AlertDialog.Builder(End_Of_Day_Screen.this).create();
                 alertDialog.setTitle("Attention!");
-                alertDialog.setMessage("You cannot go to the map at this time. Please wait until the next day.");
+                alertDialog.setMessage("You cannot go to the map at this time. Please wait until the next day between 1800 and 300 UTC");
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel",
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -100,7 +100,7 @@ public class End_Of_Day_Screen extends AppCompatActivity {
 
         LocalTime endTime = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            endTime = LocalTime.of(22, 0);
+            endTime = LocalTime.of(23, 0);
         }
 
         LocalTime current = null;
