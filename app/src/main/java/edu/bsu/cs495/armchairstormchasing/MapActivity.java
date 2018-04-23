@@ -209,7 +209,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 try {
                     scoreHandler.postDelayed(scoreRunnable, 60000);
                     ArrayList<Folder> folders = testParse();
-                    // ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
+                    //ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
                     showAllPolygons(folders);
                     score.calculateScore(folders, currentPos);
                     TextView dayScoreText = (TextView)findViewById(R.id.latLong);
