@@ -197,7 +197,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 }
             }
         };
-        timeHandler.postDelayed(timeRunnable, 10000);
 
         setUpNavDrawer();
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
@@ -208,6 +207,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             @Override
             public void run() {
                 try {
+                    scoreHandler.postDelayed(scoreRunnable, 60000);
                     ArrayList<Folder> folders = testParse();
                     // ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
                     showAllPolygons(folders);
@@ -220,20 +220,20 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 }
             }
         };
-        scoreHandler.postDelayed(scoreRunnable, 60000);
 
         final Handler downloadHandler = new Handler();
         downloadRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
+                    downloadHandler.postDelayed(downloadRunnable, 300000);
                     asyncDownload.execute(fileUrl);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         };
-        downloadHandler.postDelayed(downloadRunnable, 300000);
+
 
         // Run runnables
         executor.execute(timeRunnable);
@@ -342,7 +342,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
     };
 
-        //handler.postDelayed(updateLocationRunnable, Double.valueOf(delay).longValue());
         executor.execute(updateLocationRunnable);
     }
 
