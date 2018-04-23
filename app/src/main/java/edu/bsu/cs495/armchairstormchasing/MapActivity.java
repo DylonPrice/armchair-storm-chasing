@@ -422,6 +422,48 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
             }
         }
+
+        if(id == R.id.howToPlay){
+            final AlertDialog howToPlayDialog = new AlertDialog.Builder(MapActivity.this).create();
+            howToPlayDialog.setTitle("How to Play");
+            howToPlayDialog.setMessage("Choose your destination by pressing a location on the map. You will asked if you want to travel to that location. " +
+                                        "While traveling, the map will be disabled. In order to change your desintation, open the menu and press 'Stop Travel', and choose your new destination.");
+            howToPlayDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    howToPlayDialog.dismiss();
+                }
+            });
+            howToPlayDialog.show();
+        }
+
+        if(id == R.id.aboutBuutton){
+            final AlertDialog aboutDialog = new AlertDialog.Builder(MapActivity.this).create();
+            aboutDialog.setTitle("About");
+            aboutDialog.setMessage("Developed by Daniel Payton, Dylon Price, Isaac Walling, and David Wisenberg. App owned Dr. Nathaniel Hitchens.");
+            aboutDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    aboutDialog.dismiss();
+                }
+            });
+            aboutDialog.show();
+        }
+
+        if(id == R.id.legend){
+            final AlertDialog legendDialog = new AlertDialog.Builder(MapActivity.this).create();
+            legendDialog.setTitle("Map Legend");
+            legendDialog.setMessage("Red polygon signifies a tornado warning.\n" +
+                                    "Yellow polygon signifies a thunderstorm warning.\n" +
+                                    "Blue polygon signifies a flash flood warning.");
+            legendDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    legendDialog.dismiss();
+                }
+            });
+            legendDialog.show();
+        }
         return false;
     }
 
