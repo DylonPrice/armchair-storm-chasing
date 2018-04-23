@@ -105,20 +105,26 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        // Get current date
+        LocalDateTime current = LocalDateTime.now();
+        today = current.getDayOfYear();
+
         // Load info from Shared Preferences
         SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
         if (saved.getInt("totalScore", 0) != 0){
             int totalScore = (saved.getInt("totalScore",0));
             int dailyScore = (saved.getInt("dailyScore",0));
+            int savedDate = saved.getInt("date", 0);
+            if (today != savedDate){
+                dailyScore = 0;
+            }
             score = new Score(totalScore, dailyScore);
+
+
         }
         else {
             score = new Score(0, 0);
         }
-
-        // Get current date
-        LocalDateTime current = LocalDateTime.now();
-        today = current.getDayOfYear();
 
         // Set start lat/long
         Bundle b = getIntent().getExtras();
