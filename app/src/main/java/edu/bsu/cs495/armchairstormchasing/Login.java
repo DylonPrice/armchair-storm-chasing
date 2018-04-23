@@ -73,9 +73,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             e.printStackTrace();
         }
 
-
-
-
     }
     private boolean isTimeBetweenAllowedTime() throws ParseException {
 
