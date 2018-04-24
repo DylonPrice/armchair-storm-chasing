@@ -1,13 +1,17 @@
 package edu.bsu.cs495.armchairstormchasing;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.io.*;
-import java.util.*;
-import android.util.Log;
-import android.content.Context;
+import java.util.Calendar;
+import java.util.Date;
 
 class DownloadDataAsync extends AsyncTask<String, String, String> {
 

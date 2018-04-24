@@ -40,7 +40,6 @@ public class Score {
                     }
                 }
             }
-
             currentDayScore += scoreIncrease;
             totalScore += scoreIncrease;
         }

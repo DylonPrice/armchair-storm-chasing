@@ -3,26 +3,25 @@ package edu.bsu.cs495.armchairstormchasing;
 import android.util.Xml;
 
 import org.osmdroid.util.GeoPoint;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class XMLParser {
 
     private static final String ns = null;
 
     public ArrayList<Folder> Parse(InputStream in) throws XmlPullParserException, IOException {
-        try{
+        try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag();
             return readFeed(parser);
-        } finally{
+        } finally {
             in.close();
         }
     }
@@ -32,8 +31,8 @@ public class XMLParser {
         Boolean isFirstFolder = true;
 
         parser.require(XmlPullParser.START_TAG, ns, "kml");
-        while (parser.next() != XmlPullParser.END_TAG){
-            if (parser.getEventType() != XmlPullParser.START_TAG){
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
@@ -42,10 +41,9 @@ public class XMLParser {
                 isFirstFolder = false;
                 name = parser.getName();
             }
-            if (name.equals("Folder") && !isFirstFolder){
+            if (name.equals("Folder") && !isFirstFolder) {
                 folders.add(readFolder(parser));
-            }
-            else {
+            } else {
                 skip(parser);
             }
         }
@@ -56,7 +54,7 @@ public class XMLParser {
     private Folder readFolder(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, "Folder");
         String name = null;
-        String coordinates = null;
+        String coordinates;
         ArrayList<ArrayList<GeoPoint>> polygons = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -65,8 +63,7 @@ public class XMLParser {
             String entryName = parser.getName();
             if (entryName.equals("name")) {
                 name = readName(parser);
-            }
-            else if (entryName.equals("Placemark")){
+            } else if (entryName.equals("Placemark")) {
                 coordinates = readPlacemark(parser);
                 ArrayList<GeoPoint> polygon = createPolygon(coordinates);
                 polygons.add(polygon);
@@ -81,15 +78,14 @@ public class XMLParser {
     private String readPlacemark(XmlPullParser parser) throws XmlPullParserException, IOException {
         String coordinates = null;
 
-        while (parser.next() != XmlPullParser.END_TAG){
-            if (parser.getEventType() != XmlPullParser.START_TAG){
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String entryName = parser.getName();
-            if (entryName.equals("MultiGeometry")){
+            if (entryName.equals("MultiGeometry")) {
                 coordinates = readMultiGeometry(parser);
-            }
-            else {
+            } else {
                 skip(parser);
             }
         }
@@ -100,15 +96,14 @@ public class XMLParser {
     private String readMultiGeometry(XmlPullParser parser) throws XmlPullParserException, IOException {
         String coordinates = null;
 
-        while (parser.next() != XmlPullParser.END_TAG){
-            if (parser.getEventType() != XmlPullParser.START_TAG){
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String entryName = parser.getName();
-            if (entryName.equals("Polygon")){
+            if (entryName.equals("Polygon")) {
                 coordinates = readPolygon(parser);
-            }
-            else {
+            } else {
                 skip(parser);
             }
         }
@@ -119,15 +114,14 @@ public class XMLParser {
     private String readPolygon(XmlPullParser parser) throws XmlPullParserException, IOException {
         String coordinates = null;
 
-        while (parser.next() != XmlPullParser.END_TAG){
-            if (parser.getEventType() != XmlPullParser.START_TAG){
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String entryName = parser.getName();
-            if (entryName.equals("outerBoundaryIs")){
+            if (entryName.equals("outerBoundaryIs")) {
                 coordinates = readOuterBoundary(parser);
-            }
-            else {
+            } else {
                 skip(parser);
             }
         }
@@ -138,15 +132,14 @@ public class XMLParser {
     private String readOuterBoundary(XmlPullParser parser) throws XmlPullParserException, IOException {
         String coordinates = null;
 
-        while (parser.next() != XmlPullParser.END_TAG){
-            if (parser.getEventType() != XmlPullParser.START_TAG){
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String entryName = parser.getName();
-            if (entryName.equals("LinearRing")){
+            if (entryName.equals("LinearRing")) {
                 coordinates = readLinearRing(parser);
-            }
-            else {
+            } else {
                 skip(parser);
             }
         }
@@ -158,15 +151,14 @@ public class XMLParser {
     private String readLinearRing(XmlPullParser parser) throws XmlPullParserException, IOException {
         String coordinates = null;
 
-        while (parser.next() != XmlPullParser.END_TAG){
-            if (parser.getEventType() != XmlPullParser.START_TAG){
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String entryName = parser.getName();
-            if (entryName.equals("coordinates")){
+            if (entryName.equals("coordinates")) {
                 coordinates = readCoordinates(parser);
-            }
-            else{
+            } else {
                 skip(parser);
             }
         }
@@ -174,7 +166,7 @@ public class XMLParser {
         return coordinates;
     }
 
-    private String readCoordinates(XmlPullParser parser) throws XmlPullParserException, IOException{
+    private String readCoordinates(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "coordinates");
         String coordinates = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "coordinates");
@@ -198,10 +190,10 @@ public class XMLParser {
         return result;
     }
 
-    private ArrayList<GeoPoint> createPolygon(String polygon){
+    private ArrayList<GeoPoint> createPolygon(String polygon) {
         String[] polygonList = polygon.split(" ");
         ArrayList<GeoPoint> result = new ArrayList<>();
-        for (int i = 0; i < polygonList.length; i++){
+        for (int i = 0; i < polygonList.length; i++) {
             String[] stringPoint = polygonList[i].split(",");
             double latitude = Double.parseDouble(stringPoint[1]);
             double longitude = Double.parseDouble(stringPoint[0]);
@@ -213,12 +205,12 @@ public class XMLParser {
     }
 
     private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
-        if (parser.getEventType() != XmlPullParser.START_TAG){
+        if (parser.getEventType() != XmlPullParser.START_TAG) {
             throw new IllegalStateException();
         }
         int depth = 1;
         while (depth != 0) {
-            switch(parser.next()){
+            switch (parser.next()) {
                 case XmlPullParser.END_TAG:
                     depth--;
                     break;

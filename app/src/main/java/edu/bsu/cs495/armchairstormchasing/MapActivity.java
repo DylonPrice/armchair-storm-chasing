@@ -81,8 +81,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     MapView map;
     boolean isTraveling = false;
     int thunderColor = Color.argb(100, 215, 215, 35);
-    int tornadoColor = Color.argb(100, 200, 5,5);
-    int floodColor = Color.argb(100, 5,5, 155);
+    int tornadoColor = Color.argb(100, 200, 5, 5);
+    int floodColor = Color.argb(100, 5, 5, 155);
     ArrayList<ArrayList<GeoPoint>> thunderStormWarning = new ArrayList<>();
     ArrayList<ArrayList<GeoPoint>> tornadoWarning = new ArrayList<>();
     ArrayList<ArrayList<GeoPoint>> floodWarning = new ArrayList<>();
@@ -90,10 +90,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     Score score;
     int today;
     String filePath;
-    final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);;
+    final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
+    ;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Context ctx = getApplicationContext();
         //important! set your user agent to prevent getting banned from the osm servers
@@ -111,18 +113,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         // Load info from Shared Preferences
         SharedPreferences saved = getSharedPreferences("ascData", MODE_PRIVATE);
-        if (saved.getInt("totalScore", 0) != 0){
-            int totalScore = (saved.getInt("totalScore",0));
-            int dailyScore = (saved.getInt("dailyScore",0));
+        if (saved.getInt("totalScore", 0) != 0) {
+            int totalScore = (saved.getInt("totalScore", 0));
+            int dailyScore = (saved.getInt("dailyScore", 0));
             int savedDate = saved.getInt("date", 0);
-            if (today != savedDate){
+            if (today != savedDate) {
                 dailyScore = 0;
             }
             score = new Score(totalScore, dailyScore);
 
 
-        }
-        else {
+        } else {
             score = new Score(0, 0);
         }
 
@@ -163,15 +164,16 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                if (!isTraveling){
-                    updateRoute(waypoints,roadManager,currentPos,p,map, roadOverlay, road, startMarker);
+                if (!isTraveling) {
+                    updateRoute(waypoints, roadManager, currentPos, p, map, roadOverlay, road, startMarker);
                     //showAllPolygons();
                 }
-                if (isTraveling){
+                if (isTraveling) {
                     showTravelText();
                 }
                 return false;
             }
+
             @Override
             public boolean longPressHelper(GeoPoint p) {
                 return false;
@@ -183,7 +185,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             @Override
             public void run() {
                 try {
-                    if (!isTimeBetweenAllowedTime()){
+                    if (!isTimeBetweenAllowedTime()) {
                         timeHandler.removeCallbacks(timeRunnable);
                         Intent endOfDayIntent = new Intent(MapActivity.this, End_Of_Day_Screen.class);
                         Bundle endOfDayBundle = new Bundle();
@@ -193,8 +195,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                         endOfDayBundle.putInt("dailyScore", score.getCurrentDayScore());
                         endOfDayIntent.putExtras(endOfDayBundle);
                         startActivity(endOfDayIntent);
-                    }
-                    else{
+                    } else {
                         timeHandler.postDelayed(this, 10000);
 
                     }
@@ -214,11 +215,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             public void run() {
                 try {
                     scoreHandler.postDelayed(scoreRunnable, 60000);
-                    ArrayList<Folder> folders = testParse();
-                    //ArrayList<Folder> folders = parseData(filePath); // NOTE: This uses the actual downloaded file - Uncomment for production
+                    ArrayList<Folder> folders = parseData(filePath);
                     showAllPolygons(folders);
                     score.calculateScore(folders, currentPos);
-                    TextView dayScoreText = (TextView)findViewById(R.id.latLong);
+                    TextView dayScoreText = (TextView) findViewById(R.id.latLong);
                     dayScoreText.setText("Day Score: " + String.valueOf(score.getCurrentDayScore()));
                     System.out.println(score.getCurrentDayScore() + " SCORES HERE " + score.getTotalScore());
                 } catch (Exception e) {
@@ -248,12 +248,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
     }
 
-    public void showTravelText(){
+    public void showTravelText() {
         Toast.makeText(this, "Traveling", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
         mGoogleApiClient.connect();
@@ -261,26 +261,26 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     }
 
     private void setUpNavDrawer() {
-         mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
-         mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
-         mDrawerLayout.addDrawerListener(mToggle);
-         mToggle.syncState();
-         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mDrawerLayout = findViewById(R.id.mapNavDrawer);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
-         navigationView.setNavigationItemSelectedListener(this);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        if(mToggle.onOptionsItemSelected(item)){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mToggle.onOptionsItemSelected(item)) {
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos,GeoPoint p,MapView map,Polyline roadOverlay, Road road, Marker startMarker){
+    public void updateRoute(ArrayList<GeoPoint> waypoints, RoadManager roadManager, GeoPoint currentPos, GeoPoint p, MapView map, Polyline roadOverlay, Road road, Marker startMarker) {
         waypoints.clear();
         waypoints.add(currentPos);
         waypoints.add(p);
@@ -294,7 +294,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         showTravelDialog(road);
     }
 
-    public void showTravelDialog(Road road){
+    public void showTravelDialog(Road road) {
         final Road newRoad = road;
         final AlertDialog travelDialog = new AlertDialog.Builder(MapActivity.this).create();
         travelDialog.setTitle("Begin Travel?");
@@ -325,34 +325,34 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }, 500);
     }
 
-    public void updateCurrentLocation(Road road){
+    public void updateCurrentLocation(Road road) {
         totalPointsOnRoute = 0;
         currentPointOnRoute = 0;
         routePoints.clear();
-        for (int i = 0; i < road.mRouteHigh.size(); i++){
+        for (int i = 0; i < road.mRouteHigh.size(); i++) {
             routePoints.add(road.mRouteHigh.get(i));
-            totalPointsOnRoute+=1;
+            totalPointsOnRoute += 1;
         }
 
-        final double delay = (road.mDuration/routePoints.size()) * 1000;
+        final double delay = (road.mDuration / routePoints.size()) * 1000;
         View fadeBackground = findViewById(R.id.fadeBackground);
         fadeBackground.setVisibility(View.VISIBLE);
         fadeBackground.animate().alpha(0.5f);
 
         handler = new Handler();
-        updateLocationRunnable = new Runnable(){
+        updateLocationRunnable = new Runnable() {
             @Override
-                public void run() {
-                    updateMarker();
-                     handler.postDelayed(this, Double.valueOf(delay).longValue());
-        }
-    };
+            public void run() {
+                updateMarker();
+                handler.postDelayed(this, Double.valueOf(delay).longValue());
+            }
+        };
 
         executor.execute(updateLocationRunnable);
     }
 
-    private void updateMarker(){
-        try{
+    private void updateMarker() {
+        try {
             currentPos = routePoints.get(currentPointOnRoute);
             startMarker.setPosition(currentPos);
             startMarker.setTextLabelBackgroundColor(backgroundColor);
@@ -360,9 +360,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             startMarker.setIcon(null);
             map.getOverlays().add(startMarker);
             map.postInvalidate();
-            currentPointOnRoute+=1;
-        }
-        catch (IndexOutOfBoundsException e){
+            currentPointOnRoute += 1;
+        } catch (IndexOutOfBoundsException e) {
             Toast.makeText(this, "You have arrived", Toast.LENGTH_SHORT).show();
             isTraveling = false;
             removeFade();
@@ -370,18 +369,15 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         }
 
     }
-    private void removeFade(){
+
+    private void removeFade() {
         View fadeBackground = findViewById(R.id.fadeBackground);
-                    fadeBackground.setVisibility(View.GONE);
-            fadeBackground.animate().alpha(0.5f);
+        fadeBackground.setVisibility(View.GONE);
+        fadeBackground.animate().alpha(0.5f);
     }
 
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
     }
 
@@ -392,10 +388,10 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item){
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if(id == R.id.Logout){
+        if (id == R.id.Logout) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override
@@ -408,26 +404,25 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             );
         }
 
-        if(id == R.id.stopTravel){
-            if (isTraveling){
+        if (id == R.id.stopTravel) {
+            if (isTraveling) {
                 Toast.makeText(this, "Travel Stopped", Toast.LENGTH_SHORT).show();
                 removeFade();
                 isTraveling = false;
                 handler.removeCallbacks(updateLocationRunnable);
                 DrawerLayout mDrawerLayout;
-                mDrawerLayout = (DrawerLayout) findViewById(R.id.mapNavDrawer);
+                mDrawerLayout = findViewById(R.id.mapNavDrawer);
                 mDrawerLayout.closeDrawers();
-            }
-            else {
+            } else {
 
             }
         }
 
-        if(id == R.id.howToPlay){
+        if (id == R.id.howToPlay) {
             final AlertDialog howToPlayDialog = new AlertDialog.Builder(MapActivity.this).create();
             howToPlayDialog.setTitle("How to Play");
             howToPlayDialog.setMessage("Choose your destination by pressing a location on the map. You will asked if you want to travel to that location. " +
-                                        "While traveling, the map will be disabled. In order to change your desintation, open the menu and press 'Stop Travel', and choose your new destination.");
+                    "While traveling, the map will be disabled. In order to change your desintation, open the menu and press 'Stop Travel', and choose your new destination.");
             howToPlayDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -437,7 +432,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             howToPlayDialog.show();
         }
 
-        if(id == R.id.aboutBuutton){
+        if (id == R.id.aboutBuutton) {
             final AlertDialog aboutDialog = new AlertDialog.Builder(MapActivity.this).create();
             aboutDialog.setTitle("About");
             aboutDialog.setMessage("Developed by Daniel Payton, Dylon Price, Isaac Walling, and David Wisenberg. App owned Dr. Nathaniel Hitchens.");
@@ -450,12 +445,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             aboutDialog.show();
         }
 
-        if(id == R.id.legend){
+        if (id == R.id.legend) {
             final AlertDialog legendDialog = new AlertDialog.Builder(MapActivity.this).create();
             legendDialog.setTitle("Map Legend");
             legendDialog.setMessage("Red polygon signifies a tornado warning.\n" +
-                                    "Yellow polygon signifies a thunderstorm warning.\n" +
-                                    "Blue polygon signifies a flash flood warning.");
+                    "Yellow polygon signifies a thunderstorm warning.\n" +
+                    "Blue polygon signifies a flash flood warning.");
             legendDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -467,78 +462,65 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         return false;
     }
 
-    public void showAllPolygons(ArrayList<Folder> folders){
+    public void showAllPolygons(ArrayList<Folder> folders) {
         removeAllPolygons();
         emptyWarningLists();
         getPolygons(folders);
-        for(int i =0; i < thunderStormWarning.size(); i ++){
+        for (int i = 0; i < thunderStormWarning.size(); i++) {
             displayPolygon(thunderStormWarning.get(i), thunderColor);
         }
-        for(int i =0; i < tornadoWarning.size(); i ++){
+        for (int i = 0; i < tornadoWarning.size(); i++) {
             displayPolygon(tornadoWarning.get(i), tornadoColor);
         }
-        for(int i =0; i < floodWarning.size(); i ++){
-            displayPolygon(floodWarning.get(i),floodColor);
+        for (int i = 0; i < floodWarning.size(); i++) {
+            displayPolygon(floodWarning.get(i), floodColor);
         }
     }
 
-    public void emptyWarningLists(){
+    public void emptyWarningLists() {
         thunderStormWarning.clear();
         tornadoWarning.clear();
         floodWarning.clear();
         displayedPolygons.clear();
     }
 
-
-    public void getPolygons(ArrayList<Folder> folders){
-        for(int i =0; i < folders.size(); i ++) {
+    public void getPolygons(ArrayList<Folder> folders) {
+        for (int i = 0; i < folders.size(); i++) {
             Folder currentFolder = folders.get(i);
             ArrayList<ArrayList<GeoPoint>> newPolygons = currentFolder.polygons;
-            for (int j = 0; j <newPolygons.size(); j++){
+            for (int j = 0; j < newPolygons.size(); j++) {
                 ArrayList<GeoPoint> currentPolygon = newPolygons.get(j);
-                if (currentFolder.name.equals("NWS SVR Warnings")){
+                if (currentFolder.name.equals("NWS SVR Warnings")) {
                     thunderStormWarning.add(currentPolygon);
                 }
 
-                if (currentFolder.name.equals("NWS TOR Warnings")){
+                if (currentFolder.name.equals("NWS TOR Warnings")) {
                     tornadoWarning.add(currentPolygon);
                 }
 
-                if (currentFolder.name.equals("NWS FFW Warnings")){
+                if (currentFolder.name.equals("NWS FFW Warnings")) {
                     floodWarning.add(currentPolygon);
                 }
             }
         }
     }
 
-    public void displayPolygon(ArrayList<GeoPoint> geoPoints, int warningColor){
-        Polygon polygon= new Polygon();
+    public void displayPolygon(ArrayList<GeoPoint> geoPoints, int warningColor) {
+        Polygon polygon = new Polygon();
         polygon.setFillColor(warningColor);
         polygon.setPoints(geoPoints);
         displayedPolygons.add(polygon);
         map.getOverlayManager().add(polygon);
     }
 
-    public void removeAllPolygons(){
-        for (Polygon p : displayedPolygons){
+    public void removeAllPolygons() {
+        for (Polygon p : displayedPolygons) {
             boolean test = map.getOverlayManager().remove(p);
             System.out.println(test);
         }
     }
 
-    public ArrayList<Folder> testParse(){
-        XMLParser parser = new XMLParser();
-        InputStream inputStream = getResources().openRawResource(getResources().getIdentifier("warnings", "raw", getPackageName()));
-        ArrayList<Folder> result = null;
-        try{
-            result = parser.Parse(inputStream);
-        }catch(Exception e) {
-
-        }
-        return result;
-    }
-
-    public ArrayList<Folder> parseData(String filepath){
+    public ArrayList<Folder> parseData(String filepath) {
         XMLParser parser = new XMLParser();
         File file = new File(filepath);
         ArrayList<Folder> result = null;
@@ -546,7 +528,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             InputStream inputStream = new FileInputStream(file);
             result = parser.Parse(inputStream);
             inputStream.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
 
         }
 
@@ -580,7 +562,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     }
 
     @Override
-    public String onProcessFinish(String output){
+    public String onProcessFinish(String output) {
         filePath = output;
         return null;
     }
@@ -588,8 +570,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     @Override
     protected void onPause() {
         super.onPause();
-        float floatPosLat = (float)currentPos.getLatitude();
-        float floatPosLong = (float)currentPos.getLongitude();
+        float floatPosLat = (float) currentPos.getLatitude();
+        float floatPosLong = (float) currentPos.getLongitude();
         SharedPreferences.Editor editor = getSharedPreferences("ascData", MODE_PRIVATE).edit();
         editor.putFloat("currentPositionLat", floatPosLat);
         editor.putFloat("currentPositionLong", floatPosLong);
