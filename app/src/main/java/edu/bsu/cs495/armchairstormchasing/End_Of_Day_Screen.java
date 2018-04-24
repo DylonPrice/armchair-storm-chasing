@@ -4,10 +4,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -43,14 +43,14 @@ public class End_Of_Day_Screen extends AppCompatActivity {
             totalScore = extras.getInt("totalScore");
             dailyScore = extras.getInt("dailyScore");
         }
-        TextView dayScoreText = (TextView)findViewById(R.id.txt_dayScoreText);
+        TextView dayScoreText = findViewById(R.id.txt_dayScoreText);
         dayScoreText.setText(String.valueOf(dailyScore));
-        TextView totalScoreText = (TextView)findViewById(R.id.txt_totalScoreText);
+        TextView totalScoreText = findViewById(R.id.txt_totalScoreText);
         totalScoreText.setText(String.valueOf(totalScore));
 
         try {
             if(isTimeBetweenAllowedTime() == true){
-                Button clickNextDayButton = (Button) findViewById(R.id.btn_nextDay);
+                Button clickNextDayButton = findViewById(R.id.btn_nextDay);
                 clickNextDayButton.setOnClickListener( new View.OnClickListener() {
                     public void onClick(View v) {
                         Intent intent = new Intent(End_Of_Day_Screen.this, CityMenuActivity.class);
@@ -58,7 +58,7 @@ public class End_Of_Day_Screen extends AppCompatActivity {
                     }
                 });
 
-                Button clickNextDaySameButton = (Button) findViewById(R.id.btn_nextDaySame);
+                Button clickNextDaySameButton = findViewById(R.id.btn_nextDaySame);
                 clickNextDaySameButton.setOnClickListener( new View.OnClickListener() {
                     public void onClick(View v) {
                         Intent intent = new Intent(End_Of_Day_Screen.this, MapActivity.class);
