@@ -26,7 +26,6 @@ class DownloadDataAsync extends AsyncTask<String, String, String> {
     protected String doInBackground(String... inputUrl) {
         int count;
         String filepath = null;
-        // Change to joda time
         Date currentTime = Calendar.getInstance().getTime();
 
         try{
