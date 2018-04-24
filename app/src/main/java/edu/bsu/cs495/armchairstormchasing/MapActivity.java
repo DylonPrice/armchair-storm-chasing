@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -42,13 +43,13 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -84,7 +85,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     int today;
     String filePath;
     final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
-    ;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -193,7 +193,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
                     }
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    Log.e("MapActivity", "Time Handler Error: " + e.toString());
                 }
             }
         };
@@ -215,7 +215,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     dayScoreText.setText("Day Score: " + String.valueOf(score.getCurrentDayScore()));
                     System.out.println(score.getCurrentDayScore() + " SCORES HERE " + score.getTotalScore());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("MapActivity", "Score Handler Error: " + e.toString());
                 }
             }
         };
@@ -228,7 +228,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     downloadHandler.postDelayed(downloadRunnable, 300000);
                     asyncDownload.execute(fileUrl);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("MapActivity", "Download Handler Error: " + e.toString());
                 }
             }
         };
@@ -407,7 +407,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 mDrawerLayout = findViewById(R.id.mapNavDrawer);
                 mDrawerLayout.closeDrawers();
             } else {
-
+                // Do nothing
             }
         }
 
@@ -522,7 +522,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             result = parser.Parse(inputStream);
             inputStream.close();
         } catch (Exception e) {
-
+            Log.e("MapActivity", "Parse Data Error: " + e.toString());
         }
 
         return result;

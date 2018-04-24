@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -85,7 +86,7 @@ public class End_Of_Day_Screen extends AppCompatActivity {
                 alertDialog.show();
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e("End_Of_Day_Screen", "Intent or time error: " + e.toString());
         }
 
 

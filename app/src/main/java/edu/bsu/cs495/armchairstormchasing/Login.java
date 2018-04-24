@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -44,14 +45,14 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         LocalDateTime current = LocalDateTime.now();
         today = current.getDayOfYear();
         try {
-            if(isTimeBetweenAllowedTime() == false){
+            if(!isTimeBetweenAllowedTime()){
                 validTime = false;
             }
             else {
                 validTime = true;
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e("Login", "Login error: " + e.toString());
         }
 
     }
@@ -123,7 +124,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             intent.putExtras(b);
             startActivity(intent);
         }
-        else if (validTime == false){
+        else if (!validTime){
             Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
             startActivity(intent);
         }
