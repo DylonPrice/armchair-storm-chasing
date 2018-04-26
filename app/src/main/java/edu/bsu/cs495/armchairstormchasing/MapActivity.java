@@ -212,8 +212,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                     showAllPolygons(folders);
                     score.calculateScore(folders, currentPos);
                     TextView dayScoreText = (TextView) findViewById(R.id.latLong);
-                    dayScoreText.setText("Day Score: " + String.valueOf(score.getCurrentDayScore()));
-                    System.out.println(score.getCurrentDayScore() + " SCORES HERE " + score.getTotalScore());
+                    dayScoreText.setText("Today's Score: " + String.valueOf(score.getCurrentDayScore()));
                 } catch (Exception e) {
                     Log.e("MapActivity", "Score Handler Error: " + e.toString());
                 }
