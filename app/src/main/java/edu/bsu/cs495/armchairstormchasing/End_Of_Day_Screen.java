@@ -50,7 +50,7 @@ public class End_Of_Day_Screen extends AppCompatActivity {
         totalScoreText.setText(String.valueOf(totalScore));
 
         try {
-            if(isTimeBetweenAllowedTime() == true){
+            if(isTimeBetweenAllowedTime()){
                 Button clickNextDayButton = findViewById(R.id.btn_nextDay);
                 clickNextDayButton.setOnClickListener( new View.OnClickListener() {
                     public void onClick(View v) {

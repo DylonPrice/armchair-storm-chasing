@@ -116,7 +116,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
         float savedLat = (saved.getFloat("currentPositionLat",0));
         float savedLong = (saved.getFloat("currentPositionLong",0));
         int savedDate = (saved.getInt("date",0));
-        if (savedLat != 0 && validTime == true && today == savedDate){
+        int totalScore = (saved.getInt("totalScore", 0));
+        if (savedLat != 0 && validTime && today == savedDate){
             Intent intent = new Intent(Login.this, MapActivity.class);
             Bundle b = new Bundle();
             b.putDouble("startLat", savedLat);
@@ -124,7 +125,14 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             intent.putExtras(b);
             startActivity(intent);
         }
-        else if (!validTime){
+        if (savedLat != 0 && validTime && today != savedDate && totalScore != 0){
+            Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
+            Bundle b = new Bundle();
+            b.putInt("totalScore", totalScore);
+            intent.putExtras(b);
+            startActivity(intent);
+        }
+        if (!validTime){
             Intent intent = new Intent(Login.this, End_Of_Day_Screen.class);
             startActivity(intent);
         }
