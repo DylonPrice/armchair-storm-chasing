@@ -11,7 +11,7 @@ What you need before beginning development.
 * [Android Studio](https://developer.android.com/studio/)
 * All dependencies listed in the 'Built With' section
 
-## Code Notes
+## Development Notes
 
 If you plan on developing Armchair Storm Chasing further, this section should help you get up to speed.
 
