@@ -25,6 +25,7 @@ If you plan on developing Armchair Storm Chasing further, this section should he
 
 * [Android Studio](https://developer.android.com/studio/) - IDE used for development and testing. 
 * [osmdroid](https://github.com/osmdroid/osmdroid) - Replaces default Map View and allows for interaction with OpenStreetMap.
+* [OSMBonusPack](https://github.com/MKergall/osmbonuspack) - Provides access to routing functionality for calculating road usage, distance, and time.
 * [Weather.gov](https://www.weather.gov/source/crh/shapefiles/) - Used as a source of live weather data, specifically the KML download.
 
 ## Developers
